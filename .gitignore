@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Test and coverage artifacts
+.pytest_cache/
+docs/tests/coverage/.coverage
+docs/tests/coverage/html/
+docs/tests/coverage/coverage.xml
+docs/tests/coverage/coverage.json
