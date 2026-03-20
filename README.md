@@ -53,3 +53,19 @@ Le projet est en phase de bootstrap technique :
 - tests de base de bootstrap disponibles.
 
 Les services metier Scryfall ne sont pas encore implementes a ce stade.
+
+## Couche d'exceptions et traduction d'erreurs
+
+Le projet fournit une hierarchie d'exceptions metier prete pour les futurs services :
+
+- `BaobabScryfallApiCallerException` (racine projet) ;
+- `ScryfallRequestException` ;
+- `ScryfallNotFoundException` ;
+- `ScryfallValidationException` ;
+- `ScryfallRateLimitException` ;
+- `ScryfallResponseFormatException` ;
+- `ScryfallPaginationException` ;
+- `ScryfallBulkDataException`.
+
+Le composant `ScryfallErrorTranslator` traduit les erreurs transport/HTTP/validation/format
+en exceptions metier, sans couplage fort a une implementation interne du transport HTTP.
