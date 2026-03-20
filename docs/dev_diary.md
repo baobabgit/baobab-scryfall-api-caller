@@ -1,3 +1,21 @@
+## 2026-03-20 18:55:00
+
+### Modifications
+- Ajout de la hierarchie complete des exceptions metier dans `src/.../exceptions/`.
+- Ajout du composant `ScryfallErrorTranslator` dans `src/.../mappers/`.
+- Mise a jour des exports publics des packages `exceptions` et `mappers`.
+- Ajout des tests unitaires complets de la couche exceptions/traduction.
+- Mise a jour de `README.md` pour documenter la couche d'erreurs.
+
+### Buts
+- Poser un contrat d'erreur unique et reutilisable pour tous les futurs services Scryfall.
+- Centraliser la traduction des erreurs techniques vers des exceptions metier explicites.
+
+### Impact
+- Les futures features peuvent lever des erreurs homogenes et diagnostiquables.
+- Le socle est decouple d'une implementation fragile de la couche transport.
+- La couche erreurs est testee de facon unitaire et prete a l'integration.
+
 ## 2026-03-20 18:40:00
 
 ### Modifications
