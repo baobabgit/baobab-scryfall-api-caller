@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=69.0.0,<70.0.0", "wheel>=0.43.0,<1.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "baobab-scryfall-api-caller"
+version = "0.1.0"
+description = "Client Python pour l'API Scryfall base sur baobab-web-api-caller."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Baobab Team" }]
+dependencies = ["baobab-web-api-caller>=0.1.0,<1.0.0"]
+
+[project.optional-dependencies]
+dev = [
+  "black>=24.0.0,<25.0.0",
+  "pylint>=3.0.0,<4.0.0",
+  "mypy>=1.8.0,<2.0.0",
+  "flake8>=7.0.0,<8.0.0",
+  "flake8-pyproject>=1.2.0,<2.0.0",
+  "bandit>=1.7.0,<2.0.0",
+  "pytest>=8.0.0,<9.0.0",
+  "pytest-cov>=5.0.0,<6.0.0",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+baobab_scryfall_api_caller = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pylint.main]
+py-version = "3.11"
+jobs = 0
+
+[tool.pylint.messages_control]
+disable = ["missing-module-docstring", "too-few-public-methods"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+pretty = true
+show_error_codes = true
+warn_unused_configs = true
+mypy_path = "src"
+exclude = ["docs/tests/coverage"]
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]
+exclude = [".venv", "__pycache__", "docs/tests/coverage"]
+
+[tool.bandit]
+exclude_dirs = [".venv", "docs/tests/coverage"]
+targets = ["src", "tests"]
+skips = ["B101"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "--strict-markers --strict-config --cov=baobab_scryfall_api_caller --cov-report=term-missing --cov-report=html:docs/tests/coverage/html --cov-report=xml:docs/tests/coverage/coverage.xml --cov-report=json:docs/tests/coverage/coverage.json --cov-fail-under=90"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["baobab_scryfall_api_caller"]
+data_file = "docs/tests/coverage/.coverage"
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = false
+
+[tool.coverage.html]
+directory = "docs/tests/coverage/html"
+
+[tool.coverage.xml]
+output = "docs/tests/coverage/coverage.xml"
+
+[tool.coverage.json]
+output = "docs/tests/coverage/coverage.json"
