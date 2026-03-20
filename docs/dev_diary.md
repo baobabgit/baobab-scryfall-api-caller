@@ -1,3 +1,24 @@
+## 2026-03-20 19:05:00
+
+### Modifications
+- Ajout des modeles communs `ListResponse`, `PaginationMetadata`, `ScryfallWarning`.
+- Ajout du modele `ScryfallErrorPayload` pour la structure d'erreur distante.
+- Ajout des composants de pagination `ScryfallListResponseValidator`,
+  `ScryfallListResponseParser` et `ScryfallPage`.
+- Mise a jour des exports publics des packages `models/common` et `pagination`.
+- Ajout des tests unitaires exhaustifs sur modeles et pagination.
+- Mise a jour de `README.md` pour documenter ce socle partage.
+
+### Buts
+- Fournir un contrat commun reutilisable pour les futures features `cards`, `sets`,
+  `rulings`, `catalogs` et `bulk_data`.
+- Garantir une validation robuste des reponses liste avant l'integration des services metier.
+
+### Impact
+- Le projet dispose d'une base de pagination stable et typee.
+- Les cas invalides de format/liste/pagination remontent des exceptions metier dediees.
+- L'integration future des services pourra se concentrer sur la logique metier specifique.
+
 ## 2026-03-20 18:55:00
 
 ### Modifications

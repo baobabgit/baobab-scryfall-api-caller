@@ -69,3 +69,14 @@ Le projet fournit une hierarchie d'exceptions metier prete pour les futurs servi
 
 Le composant `ScryfallErrorTranslator` traduit les erreurs transport/HTTP/validation/format
 en exceptions metier, sans couplage fort a une implementation interne du transport HTTP.
+
+## Modeles partages et pagination
+
+Le projet inclut un socle commun pour les reponses de type liste :
+
+- `ListResponse[T]` pour porter les elements typables ;
+- `PaginationMetadata` pour `has_more`, `next_page`, `total_cards` et `warnings` ;
+- `ScryfallWarning` pour normaliser les avertissements ;
+- `ScryfallListResponseValidator` et `ScryfallListResponseParser` pour valider/parser
+  les payloads de liste ;
+- `ScryfallPage[T]` pour manipuler une page locale sans iteration reseau automatique.
