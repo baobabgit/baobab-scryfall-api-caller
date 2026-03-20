@@ -44,15 +44,17 @@ Regles structurantes :
 
 ## Etat actuel du projet
 
-Le projet est en phase de bootstrap technique :
-
 - structure de packages source/tests en place ;
 - configuration qualite centralisee dans `pyproject.toml` ;
-- packaging initial configure ;
-- documentation minimale initialisee ;
-- tests de base de bootstrap disponibles.
+- domaines **Cards** et **Sets** implementes sur le perimetre V1 decrit ci-dessous ;
+- tests unitaires et couverture conformes aux exigences projet.
 
-Les services metier Scryfall ne sont pas encore implementes a ce stade.
+## Transport HTTP partage
+
+La logique HTTP generique (GET/POST JSON, detection d'erreurs, extraction de payload)
+est centralisee dans `ScryfallHttpClient`. Les clients de domaine (`CardsApiClient`,
+`SetsApiClient`) s'appuient sur ce composant pour eviter la duplication tout en
+conservant une facade par domaine.
 
 ## Couche d'exceptions et traduction d'erreurs
 
@@ -104,3 +106,34 @@ card_by_cm = cards.get_by_cardmarket_id(67890)
 card_by_set = cards.get_by_set_and_number("lea", "233")
 card_named = cards.get_named(exact="Black Lotus")
 ```
+
+Contraintes metier appliquees :
+
+- `named` impose exactement un mode (`exact` ou `fuzzy`) ;
+- aucune pagination reseau implicite n'est executee automatiquement.
+
+## Sets (perimetre actuel)
+
+Le domaine Sets est disponible via `SetsService` :
+
+- `list_sets(page=...)` : liste paginee (`ListResponse[Set]`) via `GET /sets` ;
+- `get_by_code(set_code)` : `GET /sets/{code}` avec validation locale du code ;
+- `get_by_id(set_id)` : `GET /sets/{id}` avec validation UUID.
+
+Exemple d'usage :
+
+```python
+from baobab_scryfall_api_caller.services.sets import SetsService
+
+sets = SetsService(web_api_caller=web_api_caller)
+
+all_sets_page = sets.list_sets()
+neo = sets.get_by_code("neo")
+one = sets.get_by_id("2f601c3a-3c97-4b47-9bfc-6d37dc2c7f8f")
+```
+
+Contraintes metier appliquees :
+
+- le code set est normalise en minuscules et valide sur un motif alphanumerique court ;
+- l'identifiant Scryfall doit etre un UUID valide ;
+- les reponses liste utilisent `ScryfallListResponseParser` (pagination `has_more` / `next_page`).

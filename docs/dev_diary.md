@@ -1,3 +1,46 @@
+## 2026-03-20 23:30:00
+
+### Modifications
+- Ajout du domaine Sets : `Set`, `SetMapper`, `SetsApiClient`, `SetsService`
+  avec liste paginee et recuperation par code ou UUID.
+- Introduction de `ScryfallHttpClient` et refactor de `CardsApiClient` pour
+  centraliser GET/POST JSON sans dupliquer la logique transport.
+- Ajout de `scryfall_payload_coercions` pour factoriser les coercitions communes
+  aux mappers Carte et Set.
+- Tests unitaires miroir (client HTTP, mapper, service, modele) et documentation
+  (`README.md`, `CHANGELOG.md`).
+
+### Buts
+- Livrer le perimetre Sets V1 (liste, get par code, get par id) aligne sur Cards.
+- Respecter la contrainte « un seul endroit » pour le transport HTTP generique.
+
+### Impact
+- Les integrations peuvent consommer les sets Scryfall de maniere typee et testee.
+- Les futurs domaines pourront reutiliser `ScryfallHttpClient` de la meme facon.
+
+## 2026-03-20 19:40:00
+
+### Modifications
+- Ajout des modeles de requete Cards : `CardSearchQuery`, `NamedCardQuery`,
+  `CardCollectionIdentifier`.
+- Extension de `CardsApiClient` avec support `POST` JSON pour endpoint collection.
+- Extension de `CardsService` avec les methodes `search`, `get_collection`,
+  `autocomplete` et `get_random`.
+- Reutilisation du socle de pagination (`ScryfallListResponseParser`) pour `search`
+  et `collection`.
+- Ajout des tests unitaires complementaires sur modeles, client et service.
+- Mise a jour de `README.md` et `CHANGELOG.md`.
+
+### Buts
+- Finaliser la couverture du perimetre Cards V1 sans casser l'API deja exposee.
+- Garantir les validations metier (dont limite 75 identifiants en collection)
+  et une gestion d'erreurs metier coherente.
+
+### Impact
+- Le domaine Cards couvre desormais tout le perimetre V1 attendu.
+- Les reponses listes sont mappees en `ListResponse[Card]` avec metadonnees de pagination.
+- Les futures integrations `client.cards` disposent d'une API stable et complete.
+
 ## 2026-03-20 19:20:00
 
 ### Modifications
