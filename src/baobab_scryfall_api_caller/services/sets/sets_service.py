@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from typing import Any
-from uuid import UUID
 
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.set_mapper import SetMapper
@@ -14,6 +13,9 @@ from baobab_scryfall_api_caller.pagination.scryfall_list_response_parser import 
     ScryfallListResponseParser,
 )
 from baobab_scryfall_api_caller.services.sets.sets_api_client import SetsApiClient
+from baobab_scryfall_api_caller.validation.scryfall_request_validators import (
+    ScryfallRequestValidators,
+)
 
 _SET_CODE_PATTERN = re.compile(r"^[a-z0-9]{2,10}$")
 
@@ -36,7 +38,7 @@ class SetsService:
 
     def list_sets(self, *, page: int | None = None) -> ListResponse[Set]:
         """Liste les sets Scryfall (reponse paginee)."""
-        params = self._build_page_params(page=page)
+        params = ScryfallRequestValidators.optional_page_params(page=page)
         payload = self.api_client.get(route="/sets", params=params)
         return self.list_parser.parse(
             raw_response=payload,
@@ -51,25 +53,12 @@ class SetsService:
 
     def get_by_id(self, set_id: str) -> Set:
         """Recupere un set par son identifiant UUID Scryfall."""
-        normalized = self._require_scryfall_uuid(value=set_id, field_name="set_id")
+        normalized = ScryfallRequestValidators.require_uuid_string(
+            value=set_id,
+            field_name="set_id",
+        )
         payload = self.api_client.get(route=f"/sets/{normalized}")
         return self.set_mapper.map_set(payload)
-
-    @staticmethod
-    def _build_page_params(*, page: int | None) -> dict[str, int] | None:
-        if page is None:
-            return None
-        if not isinstance(page, int):
-            raise ScryfallValidationException(
-                "'page' must be an integer.",
-                params={"page": page},
-            )
-        if page < 1:
-            raise ScryfallValidationException(
-                "'page' must be a positive integer.",
-                params={"page": page},
-            )
-        return {"page": page}
 
     @staticmethod
     def _require_valid_set_code(*, set_code: str) -> str:
@@ -90,25 +79,3 @@ class SetsService:
                 params={"set_code": set_code},
             )
         return normalized
-
-    @staticmethod
-    def _require_scryfall_uuid(*, value: str, field_name: str) -> str:
-        if not isinstance(value, str):
-            raise ScryfallValidationException(
-                f"'{field_name}' must be a string.",
-                params={field_name: value},
-            )
-        stripped = value.strip()
-        if not stripped:
-            raise ScryfallValidationException(
-                f"'{field_name}' cannot be empty.",
-                params={field_name: value},
-            )
-        try:
-            canonical = str(UUID(stripped))
-        except ValueError as error:
-            raise ScryfallValidationException(
-                f"'{field_name}' must be a valid UUID.",
-                params={field_name: value},
-            ) from error
-        return canonical

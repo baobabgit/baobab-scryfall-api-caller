@@ -8,6 +8,10 @@ et le projet suit le versioning semantique.
 ## [Unreleased]
 
 ### Added
+- Domaine Rulings : modele `Ruling`, `RulingMapper`, `RulingsApiClient`,
+  `RulingsService` (`list_for_card_id` sur `GET /cards/{id}/rulings`).
+- `ScryfallRequestValidators` (pagination optionnelle, UUID) partage entre
+  services Sets et Rulings.
 - Domaine Sets : modele `Set`, `SetMapper`, `SetsApiClient`, `SetsService`
   (`list_sets`, `get_by_code`, `get_by_id`) avec pagination pour la liste.
 - `ScryfallHttpClient` pour mutualiser la couche HTTP ; `CardsApiClient` delegue
