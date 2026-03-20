@@ -1,3 +1,25 @@
+## 2026-03-20 19:20:00
+
+### Modifications
+- Ajout des modeles Cards `Card` et `CardFace`.
+- Ajout du `CardMapper` pour mapper les payloads de carte.
+- Ajout de `CardsApiClient` pour encapsuler les appels HTTP Cards via
+  `baobab-web-api-caller`.
+- Ajout de `CardsService` avec les methodes :
+  `get_by_id`, `get_by_mtgo_id`, `get_by_cardmarket_id`,
+  `get_by_set_and_number`, `get_named` (`exact`/`fuzzy`).
+- Ajout des tests unitaires sur modeles, mapper, client et service.
+- Mise a jour des exports publics et de la documentation (`README.md`, `CHANGELOG.md`).
+
+### Buts
+- Livrer une premiere API Cards exploitable sur le perimetre V1 prioritaire.
+- Garantir la robustesse du mapping et de la gestion d'erreurs avant ajout des autres endpoints.
+
+### Impact
+- Le domaine Cards est desormais utilisable sur les cas d'acces unitaires principaux.
+- Les validations locales et les erreurs API sont traduites en exceptions metier dediees.
+- La base est prete pour l'extension vers `search`, `collection`, `autocomplete` et `random`.
+
 ## 2026-03-20 19:05:00
 
 ### Modifications
