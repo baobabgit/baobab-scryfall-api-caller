@@ -80,3 +80,27 @@ Le projet inclut un socle commun pour les reponses de type liste :
 - `ScryfallListResponseValidator` et `ScryfallListResponseParser` pour valider/parser
   les payloads de liste ;
 - `ScryfallPage[T]` pour manipuler une page locale sans iteration reseau automatique.
+
+## Cards core (perimetre actuel)
+
+La premiere tranche du domaine Cards est disponible via `CardsService` :
+
+- `get_by_id(card_id)` ;
+- `get_by_mtgo_id(mtgo_id)` ;
+- `get_by_cardmarket_id(cardmarket_id)` ;
+- `get_by_set_and_number(set_code, collector_number)` ;
+- `get_named(exact=...)` ou `get_named(fuzzy=...)`.
+
+Exemple d'usage :
+
+```python
+from baobab_scryfall_api_caller.services.cards import CardsService
+
+cards = CardsService(web_api_caller=web_api_caller)
+
+card_by_id = cards.get_by_id("00000000-0000-0000-0000-000000000000")
+card_by_mtgo = cards.get_by_mtgo_id(12345)
+card_by_cm = cards.get_by_cardmarket_id(67890)
+card_by_set = cards.get_by_set_and_number("lea", "233")
+card_named = cards.get_named(exact="Black Lotus")
+```
