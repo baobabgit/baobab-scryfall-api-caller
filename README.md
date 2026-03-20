@@ -46,15 +46,15 @@ Regles structurantes :
 
 - structure de packages source/tests en place ;
 - configuration qualite centralisee dans `pyproject.toml` ;
-- domaines **Cards** et **Sets** implementes sur le perimetre V1 decrit ci-dessous ;
+- domaines **Cards**, **Sets** et **Rulings** implementes sur le perimetre V1 decrit ci-dessous ;
 - tests unitaires et couverture conformes aux exigences projet.
 
 ## Transport HTTP partage
 
 La logique HTTP generique (GET/POST JSON, detection d'erreurs, extraction de payload)
 est centralisee dans `ScryfallHttpClient`. Les clients de domaine (`CardsApiClient`,
-`SetsApiClient`) s'appuient sur ce composant pour eviter la duplication tout en
-conservant une facade par domaine.
+`SetsApiClient`, `RulingsApiClient`) s'appuient sur ce composant pour eviter la
+duplication tout en conservant une facade par domaine.
 
 ## Couche d'exceptions et traduction d'erreurs
 
@@ -137,3 +137,26 @@ Contraintes metier appliquees :
 - le code set est normalise en minuscules et valide sur un motif alphanumerique court ;
 - l'identifiant Scryfall doit etre un UUID valide ;
 - les reponses liste utilisent `ScryfallListResponseParser` (pagination `has_more` / `next_page`).
+
+## Rulings (perimetre actuel)
+
+Le domaine Rulings est disponible via `RulingsService` :
+
+- `list_for_card_id(card_id, page=...)` : rulings Oracle pour une carte
+  (`GET /cards/{id}/rulings`), reponse `ListResponse[Ruling]` paginee.
+
+Exemple d'usage :
+
+```python
+from baobab_scryfall_api_caller.services.rulings import RulingsService
+
+rulings = RulingsService(web_api_caller=web_api_caller)
+
+page = rulings.list_for_card_id("00000000-0000-4000-8000-000000000001")
+```
+
+Contraintes metier appliquees :
+
+- l'identifiant carte doit etre un UUID Scryfall valide ;
+- le parametre `page` est optionnel et valide comme entier strictement positif ;
+- les reponses liste sont parsees via `ScryfallListResponseParser`.

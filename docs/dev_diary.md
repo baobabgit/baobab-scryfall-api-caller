@@ -1,3 +1,21 @@
+## 2026-03-21 00:15:00
+
+### Modifications
+- Ajout du domaine Rulings : `Ruling`, `RulingMapper`, `RulingsApiClient`,
+  `RulingsService` avec `list_for_card_id` (liste paginee via
+  `ScryfallListResponseParser`).
+- Introduction de `ScryfallRequestValidators` pour factoriser validation UUID et
+  parametre `page` ; refactor de `SetsService` pour reutiliser ce composant.
+- Tests unitaires miroir (modele, mapper, client, service, validateurs) et mise
+  a jour de `README.md`, `CHANGELOG.md`.
+
+### Buts
+- Couvrir le perimetre V1 rulings par identifiant carte sans API speculative.
+- Garder le service extensible (nouvelles methodes de recouvrement possibles plus tard).
+
+### Impact
+- Les consommateurs peuvent recuperer les textes de rulings Oracle pour une carte donnee.
+
 ## 2026-03-20 23:30:00
 
 ### Modifications
