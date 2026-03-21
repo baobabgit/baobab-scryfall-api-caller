@@ -57,6 +57,18 @@ class TestScryfallRequestValidators:
         else:
             assert False, "Expected ScryfallValidationException"
 
+    def test_require_uuid_string_rejects_non_string(self) -> None:
+        """Un identifiant non chaine doit lever avant parsing UUID."""
+        try:
+            ScryfallRequestValidators.require_uuid_string(
+                value=123,  # type: ignore[arg-type]
+                field_name="card_id",
+            )
+        except ScryfallValidationException as exception:
+            assert "must be a string" in exception.message
+        else:
+            assert False, "Expected ScryfallValidationException"
+
     def test_require_scryfall_query_string_valid(self) -> None:
         """Une requete non vide est retournee telle quelle (DSL preserve)."""
         assert (

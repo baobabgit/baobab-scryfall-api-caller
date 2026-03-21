@@ -155,13 +155,16 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 ## Etat actuel du projet
 
 - **Release V1** : version **0.1.0** ; fonctionnalites prevues au cahier des charges V1
-  sont implementees (synthese : `docs/V1_compliance.md`).
+  sont implementees (synthese : `docs/V1_compliance.md`). La branche de stabilisation
+  a verifie l'alignement doc / code, la qualite complete et une couverture elevee
+  (~97 %) avant tag / publication PyPI.
 - Structure `src/` / `tests/` / `docs/` ; tests en arborescence miroir.
 - Facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
   **Catalogs**, **Bulk Data** comme decrit ci-dessous.
 - Qualite : outils configures dans `pyproject.toml` ; **CI GitHub Actions** sur `main`
   (meme chaine que les commandes locales recommandees).
-- Couverture de tests : seuil **90 %** (`pytest-cov`).
+- Couverture de tests : seuil minimal **90 %** ; objectif atteint au-dela sur la branche
+  RC (rapport sous `docs/tests/coverage/`).
 
 ## Limitations connues et release readiness
 

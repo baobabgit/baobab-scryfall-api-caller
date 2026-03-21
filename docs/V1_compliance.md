@@ -62,3 +62,18 @@ etc.
    `baobab-web-api-caller` validees en production.
 3. Etendre le perimetre endpoints (symbologie, backs, etc.) selon les besoins produit,
    sans casser l'API publique stable (`ScryfallApiCaller` + services).
+
+## Bilan release candidate (RC)
+
+Avant tag **0.1.0** / publication :
+
+| Critere | Statut |
+|---------|--------|
+| Domaines V1 (Cards, Sets, Rulings, Catalogs, Bulk Data) | OK — alignes sur le code et les tests |
+| Pagination / exceptions / transport injecte | OK |
+| Documentation (README, CHANGELOG, cette matrice) | OK — synchronisee avec la branche RC |
+| Qualite (black, pylint, mypy, flake8, bandit, pytest) | OK — CI sur `main` |
+| Couverture | OK — > 90 % (cible RC ~97 % sur le code mesure) |
+
+**Risques residuels** : voir section *Ecarts et limitations connues* ; combinaison de
+versions avec le wheel `baobab-web-api-caller` a valider chez l'integrateur.
