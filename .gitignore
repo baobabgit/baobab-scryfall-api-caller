@@ -9,3 +9,5 @@ docs/tests/coverage/.coverage
 docs/tests/coverage/html/
 docs/tests/coverage/coverage.xml
 docs/tests/coverage/coverage.json
+
+uv.lock

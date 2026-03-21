@@ -9,6 +9,14 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **DX / diagnostic** : `CONTRIBUTING.md` (workflow local) ; Makefile etendu
+  (`format`, `format-check`, `lint`, `typecheck`, `security`, `quality` / `check`) ;
+  scripts `scripts/run_quality.ps1` et `scripts/run_quality.sh` ; pytest avec
+  **`-ra`** (resume des skips / xfails) ; messages d'erreur par defaut du
+  `ScryfallErrorTranslator` enrichis avec la route quand disponible ; `str()` sur
+  `BaobabScryfallApiCallerException` tronque les gros `repr` de contexte ; message
+  plus explicite si la reponse HTTP n'est pas un JSON dict exploitable ; tests bulk
+  alignes sur la gate `bandit` (`tmp_path` / `# nosec B108` ou cas fictif).
 - **Modeles** : `ImageUris` ; enrichissement de `Card` (type line, oracle text,
   rarete, cmc, couleurs, langue, artiste, images, jeux, legalites, drapeaux foil,
   etc.), de `CardFace` (loyalty, defense, flavor, artiste, `image_uris`), et

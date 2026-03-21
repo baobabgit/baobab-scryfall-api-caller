@@ -48,6 +48,7 @@ class ScryfallErrorTranslator:
             message=resolved_context.message,
             error=error,
             status=resolved_status,
+            url=resolved_context.url,
         )
         exception_type = self._resolve_exception_type(
             category=resolved_context.category,
@@ -105,14 +106,23 @@ class ScryfallErrorTranslator:
 
     @staticmethod
     def _resolve_message(
-        *, message: str | None, error: Exception | None, status: int | None
+        *,
+        message: str | None,
+        error: Exception | None,
+        status: int | None,
+        url: str | None = None,
     ) -> str:
         if message:
             return message
         if error is not None and str(error):
             return str(error)
         if status is not None:
-            return f"Scryfall request failed with HTTP status {status}."
+            base = f"Scryfall request failed with HTTP status {status}."
+            if url:
+                return f"{base} Route: {url}."
+            return base
+        if url:
+            return f"Scryfall request failed (route: {url})."
         return "Scryfall request failed."
 
     @staticmethod

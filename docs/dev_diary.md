@@ -1,3 +1,23 @@
+## 2026-03-21 12:00:00
+
+### Modifications
+- **DX** : `CONTRIBUTING.md`, Makefile (`quality`, `format`, `lint`, etc.),
+  `scripts/run_quality.ps1` / `.sh` ; `pytest` **`-ra`** dans `pyproject.toml` ;
+  README pointant vers la contribution et les raccourcis.
+- **Diagnostic** : `ScryfallErrorTranslator` inclut la route dans les messages
+  generiques ; `BaobabScryfallApiCallerException.__str__` tronque les gros contextes ;
+  `ScryfallHttpClient` precise le type recu quand le payload n'est pas un dict ;
+  tests bulk : `tmp_path` ou `# nosec B108` pour `bandit` vert sur la gate locale ;
+  tests et CHANGELOG.
+
+### Buts
+- Faciliter la validation locale et la lecture des echecs (tests + erreurs) sans
+  nouvelle feature metier.
+
+### Impact
+- API publique des services inchangee ; messages d'exception potentiellement plus
+  informatifs ou legerement differents pour les cas sans message explicite.
+
 ## 2026-03-24 10:00:00
 
 ### Modifications

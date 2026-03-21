@@ -87,6 +87,29 @@ class TestScryfallErrorTranslator:
         assert translated.url is None
         assert translated.message == "Scryfall request failed."
 
+    def test_default_message_includes_route_for_http_status(self) -> None:
+        """Sans message explicite, le statut HTTP doit mentionner la route si connue."""
+        translator = ScryfallErrorTranslator()
+        translated = translator.translate(
+            context=ErrorTranslationContext(
+                http_status=502,
+                url="/bulk-data",
+            ),
+        )
+        assert translated.message == (
+            "Scryfall request failed with HTTP status 502. Route: /bulk-data."
+        )
+
+    def test_default_message_includes_route_without_status(self) -> None:
+        """Route seule : message dedie (ex. contexte incomplet)."""
+        translator = ScryfallErrorTranslator()
+        translated = translator.translate(
+            context=ErrorTranslationContext(
+                url="/cards/search",
+            ),
+        )
+        assert translated.message == "Scryfall request failed (route: /cards/search)."
+
     def test_uses_explicit_message_and_context(self) -> None:
         """Le message et le contexte explicites doivent etre conserves."""
         translator = ScryfallErrorTranslator()
