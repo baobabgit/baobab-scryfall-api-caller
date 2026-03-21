@@ -1,3 +1,23 @@
+## 2026-03-21 03:00:00
+
+### Modifications
+- Introduction de `ScryfallApiCaller` : facade legere exposant les services V1
+  (`cards`, `sets`, `rulings`, `catalogs`, `bulk_data`) avec validation du
+  transport et injection optionnelle par service pour les tests.
+- Reexports : package racine `baobab_scryfall_api_caller` et
+  `baobab_scryfall_api_caller.client`.
+- README restructure (installation, tableau des services, exemples unifies) ;
+  `CHANGELOG.md` mis a jour.
+- Tests : `tests/.../client/test_scryfall_api_caller.py` (types, transport partage,
+  injection, imports publics).
+
+### Buts
+- Rendre la librairie consommable via un point d'entree clair sans god object.
+
+### Impact
+- Les integrateurs peuvent demarrer avec un seul import et des exemples alignes
+  sur l'API reelle.
+
 ## 2026-03-21 02:00:00
 
 ### Modifications
