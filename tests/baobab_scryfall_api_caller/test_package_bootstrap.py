@@ -12,4 +12,4 @@ class TestPackageBootstrap:
 
     def test_package_version_is_defined(self) -> None:
         """La version publique doit etre definie."""
-        assert baobab_scryfall_api_caller.__version__ == "0.2.0"
+        assert baobab_scryfall_api_caller.__version__ == "1.0.0"

@@ -7,6 +7,24 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-23
+
+Premiere release **stable** semver **1.0.0** : l'API publique (`ScryfallApiCaller`,
+exports racine, services Cards / Sets / Rulings / Catalogs / Bulk Data) est consideree
+stable pour les consommateurs. Le detail fonctionnel cumule depuis **0.1.0** est
+documente dans les sections precedentes de ce changelog (`[0.2.0]`, `[0.1.0]`).
+
+**Aucun changement de comportement** par rapport a **0.2.0** : bump de version et
+documentation uniquement.
+
+### Notes
+
+- **Semver** : `1.x.y` desormais pour evolutions **compatibles** ; ruptures eventuelles
+  en **2.0.0** si necessaire a l'avenir.
+- **Limitations** : inchangées (transport injecte, telechargement bulk opt-in, tests
+  d'integration reseau optionnels, validation des combinaisons avec
+  `baobab-web-api-caller`) — voir `README.md` et `docs/V1_compliance.md`.
+
 ## [0.2.0] - 2026-03-22
 
 Deuxieme release : perimetre **V1** du cahier des charges conserve ; extensions

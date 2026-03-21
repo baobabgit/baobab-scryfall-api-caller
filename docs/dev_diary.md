@@ -1,3 +1,17 @@
+## 2026-03-23 10:00:00
+
+### Modifications
+- **Release 1.0.0 (stable)** : bump `project.version` / `__version__` / test bootstrap ;
+  `CHANGELOG` section `[1.0.0]` (premiere release stable semver, sans changement
+  fonctionnel vs 0.2.0) ; README, `V1_compliance.md`, `docs/release_notes_1.0.0.md`.
+
+### Buts
+- Marquer la stabilite de l'API publique en semver 1.x sans modifier la logique metier.
+
+### Impact
+- Consommateurs : `pip install` peut cibler `1.0.0` ; engagement de compatibilite
+  suivant semver pour les releases 1.x futures.
+
 ## 2026-03-22 14:00:00
 
 ### Modifications
