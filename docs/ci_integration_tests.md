@@ -1,5 +1,8 @@
 # CI et dependance `baobab-web-api-caller` pour les tests d'integration
 
+Guide complementaire (marqueur `integration`, politique HTTP, `--no-cov`) :
+**`docs/live_integration_tests.md`**.
+
 Ce depot **ne definit pas** de workflow GitHub Actions obligatoire ; les hypotheses
 ci-dessous servent a reproduire un job propre en CI ou en machine ephemere.
 
@@ -60,3 +63,6 @@ python -c "import baobab_web_api_caller; print('import ok')"
 
 Les tests d'integration appellent `https://api.scryfall.com` ; activer le job
 uniquement si l'environnement CI autorise le trafic sortant.
+
+Scripts optionnels (meme commande que `make test-integration`) :
+`scripts/run_live_integration_tests.ps1`, `scripts/run_live_integration_tests.sh`.

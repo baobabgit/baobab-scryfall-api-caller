@@ -12,5 +12,6 @@ test test-unit:
 	python -m pytest
 
 # Integration live seule : sans coverage (evite cov-fail-under sur un sous-ensemble).
+# Equivalent : scripts/run_live_integration_tests.ps1 ou .sh
 test-integration:
 	python -m pytest tests/integration --no-cov -m integration

@@ -1,3 +1,20 @@
+## 2026-03-22 20:00:00
+
+### Modifications
+- **Durcissement integration live** : `build_live_scryfall_client()` dans
+  `live_transport_config.py` ; `conftest` simplifie ; scenarios supplementaires
+  (sets round-trip id/code, `get_catalog`, bulk `get_by_type` / `get_by_id`,
+  validation locale `get_named`) ; `docs/live_integration_tests.md` ;
+  scripts `scripts/run_live_integration_tests.*` ; README, `ci_integration_tests.md`,
+  `pyproject.toml` (marqueur), CHANGELOG.
+
+### Buts
+- Un seul point de construction du client reel ; suite live documentee et separee des
+  unites ; couverture inchangee pour les runs standards.
+
+### Impact
+- Memes commandes `pytest` / `make test-integration` ; referentiel live centralise.
+
 ## 2026-03-22 18:00:00
 
 ### Modifications

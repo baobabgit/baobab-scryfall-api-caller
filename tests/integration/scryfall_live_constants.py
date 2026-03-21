@@ -18,3 +18,9 @@ SEARCH_QUERY_BROAD = "t:creature"
 
 # Prefixe autocomplete (noms de cartes frequentes).
 AUTOCOMPLETE_QUERY = "light"
+
+# Catalogue generique (GET /catalog/{key}) — cles stables documentees Scryfall.
+CATALOG_KEY_CREATURE_TYPES = "creature-types"
+
+# Type bulk courant (GET /bulk-data/{type}).
+BULK_TYPE_ORACLE_CARDS_SLUG = "oracle-cards"

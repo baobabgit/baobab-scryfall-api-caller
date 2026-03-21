@@ -70,6 +70,10 @@ python -m pytest tests/integration --no-cov -m integration
 
 Recettes CI detaillees (PyPI, wheel artefact, editable) : **`docs/ci_integration_tests.md`**.
 
+Guide d'integration live (marqueur, `--no-cov`, politique HTTP) :
+**`docs/live_integration_tests.md`**. Scripts : `scripts/run_live_integration_tests.ps1` /
+`scripts/run_live_integration_tests.sh` (equivalent `make test-integration`).
+
 ## Point d'entree : `ScryfallApiCaller`
 
 Le point d'entree recommande est la classe **`ScryfallApiCaller`** : elle regroupe les
@@ -211,10 +215,10 @@ exposes par `CardsService` (voir section Cards ci-dessous).
   README.
 - **Bulk data** : pas de telechargement automatique des fichiers export ; seules les
   metadonnees et l'URL (`download_uri`) sont exposees (hors scope V1, voir specifications).
-- **Tests d'integration** : une suite **optionnelle** (`tests/integration`, marqueur
-  `integration`) appelle l'API reelle Scryfall via `baobab-web-api-caller` ; a lancer
-  a la demande (reseau requis). Les tests **unitaires** restent par defaut sans reseau
-  (`pytest` exclut ce dossier ; voir section qualite).
+- **Tests d'integration** : suite **optionnelle** (`tests/integration`, marqueur
+  `integration`) contre l'API reelle ; a lancer a la demande (reseau requis).
+  Reference : `docs/live_integration_tests.md`. Les tests **unitaires** restent par
+  defaut sans reseau (`pytest` ignore ce dossier ; voir section qualite).
 - **Dependance `baobab-web-api-caller`** : version semver bornee dans `pyproject.toml` ;
   modes d'installation (wheel PyPI, editable, wheel fichier) : section **Installation**
   ci-dessus et `docs/ci_integration_tests.md`. Les tests unitaires verifient la

@@ -11,10 +11,15 @@ vis-a-vis des limites Scryfall.
 
 from __future__ import annotations
 
+from baobab_web_api_caller import (
+    BaobabServiceCaller,
+    HttpTransportCaller,
+    RequestsSessionFactory,
+)
 from baobab_web_api_caller.config.rate_limit_policy import RateLimitPolicy
 from baobab_web_api_caller.config.service_config import ServiceConfig
 
-from baobab_scryfall_api_caller import __version__
+from baobab_scryfall_api_caller import ScryfallApiCaller, __version__
 
 SCRYFALL_API_BASE_URL = "https://api.scryfall.com"
 
@@ -45,3 +50,21 @@ def build_live_service_config() -> ServiceConfig:
             min_interval_seconds=LIVE_MIN_INTERVAL_SECONDS,
         ),
     )
+
+
+def build_live_scryfall_client() -> ScryfallApiCaller:
+    """Construit la facade avec la chaine HTTP reelle (tests live).
+
+    ``ServiceConfig`` → ``HttpTransportCaller`` → ``BaobabServiceCaller`` →
+    ``ScryfallApiCaller``. Point unique pour la fixture et les helpers.
+    """
+    service_config = build_live_service_config()
+    transport = HttpTransportCaller.from_service_config(
+        service_config=service_config,
+        session_factory=RequestsSessionFactory(),
+    )
+    web_api_caller = BaobabServiceCaller(
+        service_config=service_config,
+        web_api_caller=transport,
+    )
+    return ScryfallApiCaller(web_api_caller=web_api_caller)
