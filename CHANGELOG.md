@@ -7,74 +7,45 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
-### Added
-- **CI GitHub Actions** : workflow `.github/workflows/ci.yml` (black, pylint, mypy,
-  flake8, bandit, pytest + couverture seuil 90 %) sur push / PR vers `main` ;
-  badge et section README sur l'integration continue.
+## [0.1.0] - 2026-03-20
 
-### Changed
-- **Tests CI** : doubles `FakeBaobabStyleResponse` dans `test_scryfall_http_client`
-  (sans `import baobab_web_api_caller`) ; verification de la dependance runtime via
-  `importlib.metadata` dans `test_baobab_web_api_caller_import` pour eviter
-  l'echec de collection sur PyPI + Python 3.11.
-- Harmonisation **Cards V1** : validations texte unifiees via
-  `ScryfallRequestValidators.require_non_empty_text` (suppression du helper prive du
-  service) ; docstrings `CardsService` / `ScryfallApiCaller` ; README (tableau des
-  methodes, types de retour, erreurs, contraintes) ; `docs/V1_compliance.md` (synthese
-  domaine Cards) ; test de surface `test_cards_service_v1_surface`.
+Premiere release publique : perimetre fonctionnel **V1** aligne sur
+`docs/01_specifications.md` et synthese dans `docs/V1_compliance.md`.
 
 ### Added
-- Domaine Cards : `CardsService.get_collection` (`POST /cards/collection`, `CardCollectionResult`) ;
-  modeles `CardCollectionIdentifier`, `CardCollectionResult` ; constante
-  `MAX_CARD_COLLECTION_IDENTIFIERS` ; mapper `CardCollectionMapper` ;
-  validateurs `ScryfallRequestValidators.require_non_empty_text`,
-  `require_strict_positive_int`.
-- Domaine Cards : `CardsService.search` (`GET /cards/search`, `ListResponse[Card]`),
-  `CardsService.autocomplete` (`GET /cards/autocomplete`, modele `AutocompleteResult`),
-  `CardsService.random` (`GET /cards/random`) ; mapper `AutocompleteMapper` ;
-  validateur partage `ScryfallRequestValidators.require_scryfall_query_string`.
-- Document `docs/V1_compliance.md` : matrice de conformite au cahier des charges,
-  ecarts residuels (Cards) et pistes post-V1.
-- Sections README : packaging / `py.typed`, commandes qualite, emplacement des
-  rapports de couverture, lien vers la conformite V1.
-- Facade publique `ScryfallApiCaller` (`client/scryfall_api_caller.py`) : point
-  d'entree unique exposant `cards`, `sets`, `rulings`, `catalogs`, `bulk_data`
-  avec le meme transport ; reexport depuis le package racine et `client`.
-- Documentation utilisateur enrichie (installation, tableau des services, exemples
-  par domaine via la facade).
-- Domaine Bulk Data : modele `BulkData`, `BulkDataMapper`, `BulkDataApiClient`,
-  `BulkDataService` (liste, `get_by_id`, `get_by_type`, exposition `download_uri`
-  sans telechargement).
-- Domaine Catalogs : modele `Catalog`, `CatalogMapper`, `CatalogsApiClient`,
-  `CatalogsService` (`get_catalog` + helpers frequents).
-- Domaine Rulings : modele `Ruling`, `RulingMapper`, `RulingsApiClient`,
-  `RulingsService` (`list_for_card_id` sur `GET /cards/{id}/rulings`).
-- `ScryfallRequestValidators` (pagination optionnelle, UUID) partage entre
-  services Sets et Rulings.
-- Domaine Sets : modele `Set`, `SetMapper`, `SetsApiClient`, `SetsService`
-  (`list_sets`, `get_by_code`, `get_by_id`) avec pagination pour la liste.
-- `ScryfallHttpClient` pour mutualiser la couche HTTP ; `CardsApiClient` delegue
-  a ce composant.
-- `scryfall_payload_coercions` pour les coercitions de champs partagees entre mappers.
-- Bootstrap initial du projet (`src`, `tests`, configuration qualite, documentation).
-- Couche d'exceptions metier et traducteur d'erreurs.
-- Socle de modeles partages et pagination.
-- Premiere tranche du domaine Cards (`get_by_id`, `get_by_mtgo_id`,
-  `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` exact/fuzzy).
+
+- **Packaging** : `pyproject.toml` (PEP 621), `requires-python >= 3.11`, dependance
+  `baobab-web-api-caller>=0.1.0,<2.0.0`, marqueur PEP 561 (`py.typed`).
+- **Facade** : `ScryfallApiCaller` avec les services `cards`, `sets`, `rulings`,
+  `catalogs`, `bulk_data` et le transport injecte (`web_api_caller`).
+- **Exports racine** : `ScryfallApiCaller`, `WebApiTransportProtocol`, `__version__`
+  (depuis `baobab_scryfall_api_caller`).
+- **Exports `client`** : `ScryfallApiCaller`, `ScryfallHttpClient`,
+  `WebApiTransportProtocol`.
+- **Cards (V1)** : acces unitaires (`get_by_id`, `get_by_mtgo_id`,
+  `get_by_cardmarket_id`, `get_by_set_and_number`), `get_named`, `search`,
+  `autocomplete`, `random`, `get_collection` ; modeles et mappers associes.
+- **Sets** : `list_sets`, `get_by_code`, `get_by_id`.
+- **Rulings** : `list_for_card_id` (pagination).
+- **Catalogs** : `get_catalog` et helpers (`get_card_names`, `get_creature_types`,
+  `get_land_types`, `get_card_types`, `get_artist_names`).
+- **Bulk data** : `list_bulk_datasets`, `get_by_id`, `get_by_type` (metadonnees et
+  URL, sans telechargement de fichiers).
+- **Transversal** : `ScryfallHttpClient`, validateurs partages, hierarchie
+  d'exceptions metier, `ListResponse` / pagination Scryfall.
+- **CI** : GitHub Actions (black, pylint, mypy, flake8, bandit, pytest, couverture
+  minimale 90 %).
+- **Documentation** : README, matrice `docs/V1_compliance.md`, journal
+  `docs/dev_diary.md`.
 
 ### Changed
-- `CardsService` : validation des entiers positifs (`mtgo_id`, `cardmarket_id`) via
-  `ScryfallRequestValidators.require_strict_positive_int` (factorisation avec collection).
-- Integration `baobab-web-api-caller` : contrainte de version `>=0.1.0,<2.0.0` ;
-  `ScryfallHttpClient` tente les signatures `BaobabServiceCaller` (`path`,
-  `query_params`, `json_body`) et lit `BaobabResponse.json_data` ; typage
-  `WebApiTransportProtocol` sur la facade et les services ; normaliseur
-  `BaobabQueryParamsNormalizer` ; README avec exemple `BaobabServiceCaller` +
-  `HttpTransportCaller`.
-- Durcissement tests : scenarios HTTP POST supplementaires, validations
-  `CardsService`, rendu complet de l'exception racine, couverture de
-  `CardsApiClient.post`.
+
+- Harmonisation Cards V1 : validations texte via `ScryfallRequestValidators` ;
+  docstrings `CardsService` / `ScryfallApiCaller` ; tests de surface et
+  `FakeBaobabStyleResponse` / `importlib.metadata` pour la CI (wheel PyPI +
+  Python 3.11).
 
 ### Fixed
-- Documentation : README et changelog alignes sur les methodes reellement exposees
-  par `CardsService` (y compris `search`, `collection`, `autocomplete`, `random`).
+
+- Documentation (README, changelog) alignee sur les methodes effectivement
+  exposees par les services.

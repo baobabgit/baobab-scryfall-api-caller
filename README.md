@@ -5,7 +5,8 @@
 ## But de la librairie
 
 `baobab-scryfall-api-caller` est une librairie Python qui fournit une API orientee metier
-pour consommer l'API Web Scryfall.
+pour consommer l'API Web Scryfall (**perimetre V1** documente dans `docs/01_specifications.md`
+et suivi dans `docs/V1_compliance.md`).
 
 La librairie encapsule la logique specifique a Scryfall :
 
@@ -78,6 +79,15 @@ bulk = client.bulk_data.list_bulk_datasets()
 
 La propriete en lecture seule `client.web_api_caller` retourne le transport injecte.
 
+### Version et exports publics (racine)
+
+- **Version** : `0.1.0` (premiere release ; perimetre fonctionnel V1). Acces programme :
+  `from baobab_scryfall_api_caller import __version__`.
+- **`__all__`** : `ScryfallApiCaller`, `WebApiTransportProtocol`, `__version__`.
+- Pour les composants clients avances (ex. tests ou extension) :
+  `from baobab_scryfall_api_caller.client import ScryfallHttpClient` (non reexportes
+  a la racine du package).
+
 ### Injection des services (tests ou extensions)
 
 Chaque service peut etre remplace par une instance existante ; le transport
@@ -144,15 +154,36 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 
 ## Etat actuel du projet
 
-- structure de packages source/tests en place ;
-- configuration qualite centralisee dans `pyproject.toml` ;
-- facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
-  **Catalogs** et **Bulk Data** conformement aux sections detaillees ci-dessus ;
-- tests unitaires et couverture conformes aux exigences projet.
+- **Release V1** : version **0.1.0** ; fonctionnalites prevues au cahier des charges V1
+  sont implementees (synthese : `docs/V1_compliance.md`).
+- Structure `src/` / `tests/` / `docs/` ; tests en arborescence miroir.
+- Facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
+  **Catalogs**, **Bulk Data** comme decrit ci-dessous.
+- Qualite : outils configures dans `pyproject.toml` ; **CI GitHub Actions** sur `main`
+  (meme chaine que les commandes locales recommandees).
+- Couverture de tests : seuil **90 %** (`pytest-cov`).
+
+## Limitations connues et release readiness
+
+- **Transport** : la librairie n'instancie pas `baobab-web-api-caller` a votre place ;
+  vous devez composer `ServiceConfig`, `HttpTransportCaller`, `BaobabServiceCaller`
+  (ou equivalent conforme a `WebApiTransportProtocol`) comme dans l'exemple du
+  README.
+- **Bulk data** : pas de telechargement automatique des fichiers export ; seules les
+  metadonnees et l'URL (`download_uri`) sont exposees (hors scope V1, voir specifications).
+- **Tests** : la suite du depot est **unitaire** (mocks) ; pas de tests d'integration
+  reseau contre l'API Scryfall dans ce repository.
+- **Dependance `baobab-web-api-caller`** : version semver bornee dans `pyproject.toml` ;
+  en cas de regression du wheel PyPI, valider l'integration avec la version installee
+  (les tests de ce depot n'importent pas le paquet top-level pour rester robustes en CI).
 
 ## Packaging et typage (PEP 621 / PEP 561)
 
 - **Distribution** : `pyproject.toml` (metadonnees, dependances, outils qualite).
+- **Version** : `0.1.0` (champ `project.version`, dupliquee par `__version__` dans le
+  package racine ; doit rester alignee).
+- **Classifiers / keywords** : declares dans `pyproject.toml` pour indexation PyPI
+  (Python supporte : 3.11+).
 - **Marqueur de typage** : `py.typed` inclus dans le wheel via
   `[tool.setuptools.package-data]` pour les consommateurs `mypy` / IDE.
 - **Installation editable** : `pip install -e ".[dev]"` installe les dependances
@@ -168,7 +199,7 @@ Les commandes suivantes sont attendues vertes avant fusion :
 - `python -m mypy src/baobab_scryfall_api_caller`
 - `python -m flake8 src tests`
 - `python -m bandit -c pyproject.toml -r src tests`
-- `python -m pytest` (avec `pytest-cov` : seuil 90 % dans `pyproject.toml`)
+- `python -m pytest tests/` (avec `pytest-cov` : seuil 90 % dans `pyproject.toml`)
 
 Les rapports de couverture (HTML, XML, JSON) sont generes sous `docs/tests/coverage/`
 (configure dans `pyproject.toml` ; fichiers generes listes dans `.gitignore`).
@@ -291,7 +322,7 @@ Contraintes et comportements :
 
 Disponible via `client.sets` ou `SetsService` :
 
-- `list_sets(page=...)` : liste paginee (`ListResponse[Set]`) via `GET /sets` ;
+- `list_sets(*, page=...)` : liste paginee (`ListResponse[Set]`) via `GET /sets` ;
 - `get_by_code(set_code)` : `GET /sets/{code}` avec validation locale du code ;
 - `get_by_id(set_id)` : `GET /sets/{id}` avec validation UUID.
 
