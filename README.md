@@ -46,16 +46,17 @@ Regles structurantes :
 
 - structure de packages source/tests en place ;
 - configuration qualite centralisee dans `pyproject.toml` ;
-- domaines **Cards**, **Sets**, **Rulings** et **Catalogs** implementes sur le
-  perimetre V1 decrit ci-dessous ;
+- domaines **Cards**, **Sets**, **Rulings**, **Catalogs** et **Bulk Data**
+  implementes sur le perimetre V1 decrit ci-dessous ;
 - tests unitaires et couverture conformes aux exigences projet.
 
 ## Transport HTTP partage
 
 La logique HTTP generique (GET/POST JSON, detection d'erreurs, extraction de payload)
 est centralisee dans `ScryfallHttpClient`. Les clients de domaine (`CardsApiClient`,
-`SetsApiClient`, `RulingsApiClient`, `CatalogsApiClient`) s'appuient sur ce
-composant pour eviter la duplication tout en conservant une facade par domaine.
+`SetsApiClient`, `RulingsApiClient`, `CatalogsApiClient`, `BulkDataApiClient`)
+s'appuient sur ce composant pour eviter la duplication tout en conservant une
+facade par domaine.
 
 ## Couche d'exceptions et traduction d'erreurs
 
@@ -187,3 +188,34 @@ Contraintes metier appliquees :
   longueur bornee) ;
 - le mapper exige `object: catalog`, `uri`, `total_values` entier positif ou
   nul, et `data` comme liste de chaines (liste vide acceptee).
+
+## Bulk Data (perimetre actuel)
+
+Le domaine Bulk Data est disponible via `BulkDataService` :
+
+- `list_bulk_datasets()` : liste des jeux (`GET /bulk-data`, `ListResponse[BulkData]`) ;
+- `get_by_id(bulk_data_id)` : metadonnees par UUID (`GET /bulk-data/{id}`) ;
+- `get_by_type(bulk_type)` : metadonnees par type d'URL kebab-case
+  (`GET /bulk-data/{type}`, ex. ``oracle-cards``).
+
+Aucun telechargement de fichier n'est effectue en V1 : seule l'URL
+(`download_uri`) et les metadonnees sont exposees.
+
+Exemple d'usage :
+
+```python
+from baobab_scryfall_api_caller.services.bulk_data import BulkDataService
+
+bulk = BulkDataService(web_api_caller=web_api_caller)
+
+all_datasets = bulk.list_bulk_datasets()
+one = bulk.get_by_type("oracle-cards")
+by_uuid = bulk.get_by_id("922288cb-4bef-45e1-bb30-0c2bd3d3534f")
+```
+
+Contraintes metier appliquees :
+
+- validation UUID pour `get_by_id`, motif kebab-case pour `get_by_type` ;
+- coherence : `download_uri` en URL absolue HTTP(S), `size` strictement positif
+  (sinon `ScryfallBulkDataException`) ;
+- payloads `object: bulk_data` attendus pour chaque jeu.
