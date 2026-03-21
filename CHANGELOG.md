@@ -7,6 +7,11 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+### Fixed
+- Documentation : README et historique du changelog alignes sur les methodes
+  reellement exposees par `CardsService` (pas de mention trompeuse de `search`,
+  `collection`, `autocomplete`, `random` tant que non implementes).
+
 ### Added
 - Facade publique `ScryfallApiCaller` (`client/scryfall_api_caller.py`) : point
   d'entree unique exposant `cards`, `sets`, `rulings`, `catalogs`, `bulk_data`
@@ -32,5 +37,3 @@ et le projet suit le versioning semantique.
 - Socle de modeles partages et pagination.
 - Premiere tranche du domaine Cards (`get_by_id`, `get_by_mtgo_id`,
   `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` exact/fuzzy).
-- Completion du domaine Cards V1 avec `search`, `collection`, `autocomplete`
-  et `random`.

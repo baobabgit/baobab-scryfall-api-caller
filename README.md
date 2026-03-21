@@ -43,7 +43,7 @@ from baobab_scryfall_api_caller import ScryfallApiCaller
 
 client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
-# Acces aux services V1
+# Acces aux services (voir section « Perimetre par domaine »)
 card = client.cards.get_by_id("00000000-0000-0000-0000-000000000000")
 sets_page = client.sets.list_sets()
 ruling_page = client.rulings.list_for_card_id("00000000-0000-4000-8000-000000000001")
@@ -104,21 +104,26 @@ Regles structurantes :
 - API publique typee et documentee ;
 - exceptions projet dediees avec racine commune.
 
-## Perimetre V1 (cible)
+## Perimetre par domaine (implemente)
 
-- cards : get by id, named, search, collection, autocomplete, random ;
-- sets : listage et recuperation ;
-- rulings : recuperation par identifiant ;
-- catalogs : acces generique et helpers principaux ;
-- bulk data : liste et metadonnees ;
-- pagination Scryfall.
+- **cards** : `get_by_id`, `get_by_mtgo_id`, `get_by_cardmarket_id`,
+  `get_by_set_and_number`, `get_named` (exact ou fuzzy) ;
+- **sets** : liste paginee, `get_by_code`, `get_by_id` ;
+- **rulings** : `list_for_card_id` (pagination) ;
+- **catalogs** : `get_catalog` et helpers (noms, types, artistes, etc.) ;
+- **bulk data** : liste des jeux, `get_by_id`, `get_by_type` (metadonnees et URL) ;
+- **pagination** : listes Scryfall via `ListResponse` / `ScryfallListResponseParser`.
+
+Les endpoints Scryfall **search**, **collection**, **autocomplete** et **random** sont
+prevus dans le cahier des charges V1 mais **ne sont pas** exposes par `CardsService`
+dans l'etat actuel du code.
 
 ## Etat actuel du projet
 
 - structure de packages source/tests en place ;
 - configuration qualite centralisee dans `pyproject.toml` ;
 - facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
-  **Catalogs** et **Bulk Data** sur le perimetre V1 decrit ci-dessous ;
+  **Catalogs** et **Bulk Data** conformement aux sections detaillees ci-dessus ;
 - tests unitaires et couverture conformes aux exigences projet.
 
 ## Transport HTTP partage

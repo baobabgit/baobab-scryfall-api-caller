@@ -1,3 +1,17 @@
+## 2026-03-21 04:00:00
+
+### Modifications
+- Alignement README / CHANGELOG : le perimetre **Cards** documente reflete
+  uniquement les methodes presentes dans `CardsService` ; les endpoints
+  `search`, `collection`, `autocomplete` et `random` sont indiques comme non
+  exposes pour l'instant (ecart explicite avec le cahier des charges V1 cible).
+
+### Buts
+- Eviter toute ambiguite pour les utilisateurs de la librairie.
+
+### Impact
+- La documentation ne suggere plus que les methodes manquantes sont livrees.
+
 ## 2026-03-21 03:00:00
 
 ### Modifications
