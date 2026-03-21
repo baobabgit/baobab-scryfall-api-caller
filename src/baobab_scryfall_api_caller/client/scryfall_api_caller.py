@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.services.bulk_data.bulk_data_service import BulkDataService
 from baobab_scryfall_api_caller.services.cards.cards_service import CardsService
@@ -26,7 +25,7 @@ class ScryfallApiCaller:
     def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         cards_service: CardsService | None = None,
         sets_service: SetsService | None = None,
         rulings_service: RulingsService | None = None,
@@ -50,7 +49,7 @@ class ScryfallApiCaller:
                 "'web_api_caller' is required.",
                 params={"web_api_caller": web_api_caller},
             )
-        self._web_api_caller = web_api_caller
+        self._web_api_caller: WebApiTransportProtocol = web_api_caller
         self.cards = cards_service or CardsService(web_api_caller=web_api_caller)
         self.sets = sets_service or SetsService(web_api_caller=web_api_caller)
         self.rulings = rulings_service or RulingsService(web_api_caller=web_api_caller)
@@ -58,6 +57,6 @@ class ScryfallApiCaller:
         self.bulk_data = bulk_data_service or BulkDataService(web_api_caller=web_api_caller)
 
     @property
-    def web_api_caller(self) -> Any:
+    def web_api_caller(self) -> WebApiTransportProtocol:
         """Transport HTTP injecte (meme instance que celle passee au constructeur)."""
         return self._web_api_caller

@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import Any
 
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.bulk_data_mapper import BulkDataMapper
 from baobab_scryfall_api_caller.models.bulk_data.bulk_data import BulkData
@@ -31,7 +31,7 @@ class BulkDataService:
     def __init__(
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         api_client: BulkDataApiClient | None = None,
         bulk_data_mapper: BulkDataMapper | None = None,
         list_parser: ScryfallListResponseParser | None = None,

@@ -62,6 +62,11 @@ class TestScryfallApiCaller:
         assert hasattr(baobab_scryfall_api_caller, "ScryfallApiCaller")
         assert "ScryfallApiCaller" in baobab_scryfall_api_caller.__all__
 
+    def test_package_root_exports_web_api_transport_protocol(self) -> None:
+        """Le protocole de transport est reexporte pour le typage des integrations."""
+        assert hasattr(baobab_scryfall_api_caller, "WebApiTransportProtocol")
+        assert "WebApiTransportProtocol" in baobab_scryfall_api_caller.__all__
+
     def test_import_from_client_subpackage_matches_root(self) -> None:
         """Les imports racine et sous-package client designent la meme classe."""
         from baobab_scryfall_api_caller.client import ScryfallApiCaller as FromClient

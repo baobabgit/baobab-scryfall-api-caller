@@ -17,7 +17,8 @@ La librairie encapsule la logique specifique a Scryfall :
 ## Installation
 
 - **Python** : 3.11 ou superieur (`requires-python` dans `pyproject.toml`).
-- **Dependance runtime** : `baobab-web-api-caller` (installee automatiquement avec le package).
+- **Dependance runtime** : `baobab-web-api-caller` (contrainte de version bornee dans
+  `pyproject.toml`, installee automatiquement avec le package).
 
 ```bash
 pip install baobab-scryfall-api-caller
@@ -35,11 +36,23 @@ Le point d'entree recommande est la classe **`ScryfallApiCaller`** : elle regrou
 services domaine derriere une facade stable, sans logique metier additionnelle.
 
 ```python
+from baobab_web_api_caller import (
+    BaobabServiceCaller,
+    HttpTransportCaller,
+    RequestsSessionFactory,
+    ServiceConfig,
+)
 from baobab_scryfall_api_caller import ScryfallApiCaller
 
-# Instancier `web_api_caller` selon la documentation de baobab-web-api-caller
-# (base URL https://api.scryfall.com, configuration des en-tetes, etc.).
-# web_api_caller = ...
+service_config = ServiceConfig(base_url="https://api.scryfall.com")
+transport = HttpTransportCaller.from_service_config(
+    service_config=service_config,
+    session_factory=RequestsSessionFactory(),
+)
+web_api_caller = BaobabServiceCaller(
+    service_config=service_config,
+    web_api_caller=transport,
+)
 
 client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
@@ -87,13 +100,22 @@ Import direct des services (sans facade) reste possible : `CardsService`,
 
 ## Dependance a baobab-web-api-caller
 
-La couche de transport HTTP repose exclusivement sur `baobab-web-api-caller`.
+La couche de transport HTTP repose **exclusivement** sur `baobab-web-api-caller`
+(PyPI). Aucune requete ne doit utiliser `requests`, `urllib` ou un client HTTP
+direct dans ce depot : tout passe par l'instance injectee (`BaobabServiceCaller`
++ `HttpTransportCaller`, ou double de test respectant `WebApiTransportProtocol`).
+
+`ScryfallHttpClient` adapte les appels metier (routes Scryfall, query dict) vers
+les signatures `get(path=..., query_params=..., headers=...)` et
+`post(..., json_body=...)` de `BaobabServiceCaller`, et extrait les JSON depuis
+`BaobabResponse.json_data`.
 
 Regles structurantes :
 
 - aucun appel HTTP direct hors de `baobab-web-api-caller` ;
 - aucune duplication de logique HTTP generique ;
-- separation stricte entre transport et logique metier Scryfall.
+- separation stricte entre transport et logique metier Scryfall ;
+- injection unique : pas de singleton global pour le transport.
 
 ## Principes d'architecture
 

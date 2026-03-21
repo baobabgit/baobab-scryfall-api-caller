@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import Any
 
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.catalog_mapper import CatalogMapper
 from baobab_scryfall_api_caller.models.catalogs.catalog import Catalog
@@ -24,7 +24,7 @@ class CatalogsService:
     def __init__(
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         api_client: CatalogsApiClient | None = None,
         catalog_mapper: CatalogMapper | None = None,
     ) -> None:
