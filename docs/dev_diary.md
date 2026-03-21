@@ -1,3 +1,18 @@
+## 2026-03-22 22:30:00
+
+### Modifications
+- **Ergonomie pagination** : `ListResponse` et `ScryfallPage` (iteration, `items`,
+  `is_empty`, `count`, `repr`, raccourcis metadata) ; `iter_list_pages` /
+  `iter_list_items` avec `fetch_next` explicite ; README, CHANGELOG, tests.
+
+### Buts
+- Usage naturel des pages sans requetes reseau implicites ; API publique des champs
+  `data` / `metadata` preservee.
+
+### Impact
+- Consommateurs peuvent parcourir une page avec `for x in response` ou enchainer
+  les pages via un callable documente.
+
 ## 2026-03-22 20:00:00
 
 ### Modifications

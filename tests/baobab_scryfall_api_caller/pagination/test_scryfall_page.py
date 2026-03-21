@@ -21,6 +21,12 @@ class TestScryfallPage:
         assert page.items == ["A", "B"]
         assert page.has_more is True
         assert page.next_page == "https://api.scryfall.com/cards/search?page=2"
+        assert page.count == 2
+        assert len(page) == 2
+        assert list(page) == ["A", "B"]
+        assert page
+        assert not page.is_empty
+        assert "ScryfallPage" in repr(page)
 
     def test_page_without_next(self) -> None:
         """Une page terminale doit exposer next_page a None."""
@@ -33,3 +39,5 @@ class TestScryfallPage:
         assert not page.items
         assert page.has_more is False
         assert page.next_page is None
+        assert page.is_empty
+        assert not page

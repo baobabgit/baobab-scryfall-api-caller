@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
@@ -30,3 +31,25 @@ class ScryfallPage(Generic[T]):
     def next_page(self) -> str | None:
         """Retourne l'URL de page suivante si disponible."""
         return self.response.next_page
+
+    @property
+    def is_empty(self) -> bool:
+        """Vrai si la page courante ne contient aucun element."""
+        return self.response.is_empty
+
+    @property
+    def count(self) -> int:
+        """Nombre d'elements dans la page courante."""
+        return self.response.count
+
+    def __len__(self) -> int:
+        return len(self.response)
+
+    def __iter__(self) -> Iterator[T]:
+        return iter(self.response)
+
+    def __bool__(self) -> bool:
+        return bool(self.response)
+
+    def __repr__(self) -> str:
+        return f"ScryfallPage({self.response!r})"

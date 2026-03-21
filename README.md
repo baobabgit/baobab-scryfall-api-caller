@@ -340,6 +340,43 @@ Le projet inclut un socle commun pour les reponses de type liste :
   les payloads de liste ;
 - `ScryfallPage[T]` pour manipuler une page locale sans iteration reseau automatique.
 
+### Ergonomie : `ListResponse` et pages suivantes
+
+Sur une page deja obtenue (ex. `CardsService.search`, `SetsService.list_sets`) :
+
+- **Iteration** : `for card in page:` parcourt les elements de la **page courante** ;
+  `len(page)`, `bool(page)`, `page.is_empty`, `page.count` ;
+- **Alias** : `page.items` est un alias de `page.data` ;
+- **Metadonnees** : `page.has_more`, `page.next_page`, `page.total_cards`, `page.warnings` ;
+- **Representation** : `repr(page)` resume taille et pagination sans lister tous les objets.
+
+Pour enchainer **plusieurs pages** via les URL `next_page` de Scryfall, le module
+`baobab_scryfall_api_caller.pagination` expose des helpers **explicites** qui ne
+declenchent aucun GET tant que vous ne fournissez pas `fetch_next` :
+
+- `iter_list_pages(first, fetch_next=..., max_pages=...)` : yield chaque `ListResponse` ;
+- `iter_list_items(first, fetch_next=..., max_pages=...)` : yield tous les elements
+  en suivant les pages.
+
+`fetch_next(url_absolue)` doit executer le GET via votre transport
+(`ScryfallHttpClient` / `baobab-web-api-caller`), parser la reponse avec le meme
+`ScryfallListResponseParser` et le mapper du domaine. Aucun parcours reseau implicite
+n'est effectue sans cet appel.
+
+Exemple minimal (pseudo-code) :
+
+```python
+from baobab_scryfall_api_caller.pagination import iter_list_items
+
+def fetch_next(url: str):
+    payload = http.get(route=url, params=None)  # URL absolue Scryfall
+    return parser.parse(raw_response=payload, item_mapper=card_mapper.map_card)
+
+first = client.cards.search(q="type:creature")
+for card in iter_list_items(first, fetch_next=fetch_next, max_pages=5):
+    ...
+```
+
 ## Cards (V1)
 
 Disponible via `client.cards` ou `CardsService`. Toutes les operations V1 Scryfall

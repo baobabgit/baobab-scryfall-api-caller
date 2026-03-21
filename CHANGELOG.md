@@ -9,6 +9,11 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Pagination** : ergonomie Python sur `ListResponse` (`__iter__`, `__len__`, `__bool__`,
+  `items`, `is_empty`, `count`, raccourcis `total_cards` / `warnings`, `__repr__`) ;
+  `ScryfallPage` aligne ; helpers explicites `iter_list_pages` et `iter_list_items`
+  dans `baobab_scryfall_api_caller.pagination` (aucun GET sans `fetch_next` fourni par
+  l'appelant). README et tests unitaires associes.
 - **Documentation tests live** : `docs/live_integration_tests.md` (chaine d'injection,
   marqueur `integration`, `--no-cov`, politique HTTP) ; scripts
   `scripts/run_live_integration_tests.ps1` / `.sh` ; liens depuis README et
