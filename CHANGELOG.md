@@ -9,6 +9,15 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Documentation tests live** : `docs/live_integration_tests.md` (chaine d'injection,
+  marqueur `integration`, `--no-cov`, politique HTTP) ; scripts
+  `scripts/run_live_integration_tests.ps1` / `.sh` ; liens depuis README et
+  `docs/ci_integration_tests.md`.
+- **Integration live** : fabrique `build_live_scryfall_client()` dans
+  `tests/integration/live_transport_config.py` (point unique pour la fixture) ;
+  scenarios supplementaires (`sets.get_by_id` en coherence avec `get_by_code`,
+  `catalogs.get_catalog`, `bulk_data.get_by_type` / `get_by_id`, erreur de validation
+  locale sur `cards.get_named()` sans parametres).
 - **Documentation installation `baobab-web-api-caller`** : README (modes wheel PyPI,
   editable local, wheel fichier ; verification d'import ; ordre d'installation ;
   cibles `Makefile`), guide `docs/ci_integration_tests.md` (hypotheses CI sans

@@ -87,7 +87,7 @@ addopts = "--strict-markers --strict-config --ignore=tests/integration --cov=bao
 testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
-  "integration: tests reseau contre api.scryfall.com (dossier tests/integration)",
+  "integration: tests reseau contre api.scryfall.com (dossier tests/integration ; exclu du pytest par defaut par --ignore)",
 ]
 
 [tool.coverage.run]

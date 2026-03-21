@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import pytest
 
+from baobab_scryfall_api_caller import ScryfallApiCaller
+
 from tests.integration.live_transport_config import (
     ACCEPT_HEADER_JSON,
     LIVE_MIN_INTERVAL_SECONDS,
     LIVE_REQUESTS_PER_SECOND,
+    build_live_scryfall_client,
     build_live_service_config,
 )
 
@@ -33,3 +36,8 @@ class TestLiveTransportPolicy:
         )
         assert cfg.default_headers["Accept"] == ACCEPT_HEADER_JSON
         assert cfg.rate_limit_policy.min_interval_seconds == LIVE_MIN_INTERVAL_SECONDS
+
+    def test_build_live_scryfall_client_returns_facade(self) -> None:
+        """La fabrique assemble la chaine documentee sans appel reseau."""
+        client = build_live_scryfall_client()
+        assert isinstance(client, ScryfallApiCaller)
