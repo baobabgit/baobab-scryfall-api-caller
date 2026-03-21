@@ -1,3 +1,16 @@
+## 2026-03-23 18:00:00
+
+### Modifications
+- **Bulk download** : `BulkDatasetDownloader`, `bulk_download_uri`, `BulkDownloadResult` ;
+  `BulkDataService` + `ScryfallApiCaller` ; tests ; README / CHANGELOG.
+
+### Buts
+- Telechargement fichier bulk via la meme dependance `baobab-web-api-caller`, sans HTTP direct
+  dans ce depot ; API explicite et `overwrite` clair.
+
+### Impact
+- Sans `bulk_dataset_downloader`, comportement identique pour les seuls appels metadonnees.
+
 ## 2026-03-23 12:00:00
 
 ### Modifications

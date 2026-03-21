@@ -14,7 +14,8 @@ class BulkData:  # pylint: disable=too-many-instance-attributes
     :ivar type: Identifiant machine du type de fichier (ex. ``oracle_cards``).
     :ivar name: Nom affiche du jeu.
     :ivar description: Description textuelle du contenu.
-    :ivar download_uri: URL de telechargement du fichier (pas de fetch en V1).
+    :ivar download_uri: URL absolue de telechargement du fichier (utilisee par
+        ``BulkDatasetDownloader``).
     :ivar updated_at: Horodatage de derniere mise a jour (tel que renvoye par l'API).
     :ivar size: Taille du fichier en octets.
     :ivar content_type: Type MIME annonce.
