@@ -33,6 +33,15 @@ class TestRulingMapper:
         assert result.oracle_id == payload["oracle_id"]
         assert result.source == "wotc"
         assert result.comment == payload["comment"]
+        assert result.ruling_id is None
+
+    def test_map_ruling_with_record_id(self) -> None:
+        """Le champ API ``id`` est expose en ``ruling_id``."""
+        mapper = RulingMapper()
+        rid = "11111111-1111-4111-8111-111111111111"
+        payload = _valid_ruling_payload(id=rid)
+        result = mapper.map_ruling(payload)
+        assert result.ruling_id == rid
 
     def test_map_ruling_rejects_non_dict(self) -> None:
         """Un type non dict doit lever une erreur de format."""

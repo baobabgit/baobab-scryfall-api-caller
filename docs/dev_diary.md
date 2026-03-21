@@ -1,3 +1,15 @@
+## 2026-03-24 10:00:00
+
+### Modifications
+- **Modeles** : `ImageUris`, champs supplementaires sur `Card` / `CardFace`, `ruling_id` ;
+  coercitions partagees ; tests ; README (section modeles) ; CHANGELOG.
+
+### Buts
+- Refleter davantage les payloads Scryfall sans casser les usages (champs optionnels en fin de dataclass).
+
+### Impact
+- Les services existants retournent des objets plus riches lorsque l'API fournit les champs.
+
 ## 2026-03-23 20:30:00
 
 ### Modifications
