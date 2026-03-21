@@ -11,6 +11,25 @@ class ScryfallRequestValidators:
     """Regroupe des validations communes aux services (pagination, identifiants UUID)."""
 
     @staticmethod
+    def require_scryfall_query_string(*, value: str, field_name: str) -> str:
+        """Valide une chaine de requete DSL Scryfall (non vide apres strip).
+
+        La valeur retournee est identique a l'entree si elle est valide, afin de
+        ne pas modifier le DSL Scryfall (espaces internes conserves).
+        """
+        if not isinstance(value, str):
+            raise ScryfallValidationException(
+                f"'{field_name}' must be a string.",
+                params={field_name: value},
+            )
+        if not value.strip():
+            raise ScryfallValidationException(
+                f"'{field_name}' cannot be empty.",
+                params={field_name: value},
+            )
+        return value
+
+    @staticmethod
     def optional_page_params(*, page: int | None) -> dict[str, int] | None:
         """Construit les parametres de page ou leve une erreur de validation."""
         if page is None:

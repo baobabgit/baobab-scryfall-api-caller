@@ -56,3 +56,34 @@ class TestScryfallRequestValidators:
             assert True
         else:
             assert False, "Expected ScryfallValidationException"
+
+    def test_require_scryfall_query_string_valid(self) -> None:
+        """Une requete non vide est retournee telle quelle (DSL preserve)."""
+        assert (
+            ScryfallRequestValidators.require_scryfall_query_string(
+                value="  t:creature  ",
+                field_name="q",
+            )
+            == "  t:creature  "
+        )
+
+    def test_require_scryfall_query_string_rejects_empty(self) -> None:
+        """Une chaine vide ou blanche uniquement doit lever."""
+        try:
+            ScryfallRequestValidators.require_scryfall_query_string(value="  ", field_name="q")
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_require_scryfall_query_string_rejects_wrong_type(self) -> None:
+        """Un type non chaine doit lever."""
+        try:
+            ScryfallRequestValidators.require_scryfall_query_string(
+                value=1,  # type: ignore[arg-type]
+                field_name="q",
+            )
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
