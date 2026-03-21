@@ -1,3 +1,16 @@
+## 2026-03-21 20:30:00
+
+### Modifications
+- Ajustement tests pour la CI : `FakeBaobabStyleResponse` (remplace `BaobabResponse`
+  importe) ; test metadata `baobab-web-api-caller` via `importlib.metadata` pour ne
+  pas executer `baobab_web_api_caller.__init__` (wheel PyPI + Python 3.11).
+
+### Buts
+- Faire passer le job pytest sur GitHub Actions sans modifier le code metier.
+
+### Impact
+- La CI reste alignee sur l'installation standard `pip install -e ".[dev]"`.
+
 ## 2026-03-21 20:00:00
 
 ### Modifications
