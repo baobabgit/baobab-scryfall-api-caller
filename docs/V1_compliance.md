@@ -1,7 +1,8 @@
 # Conformite V1 — baobab-scryfall-api-caller
 
 Document de synthese par rapport au cahier des charges (`docs/01_specifications.md`)
-et a l'etat du code a la release **0.1.0** (perimetre fonctionnel V1).
+et a l'etat du code a la release **0.2.0** (perimetre fonctionnel V1 conserve ;
+extensions post-0.1.0 integrees dans le tableau ci-dessous).
 
 ## Exigences structurelles
 
@@ -11,7 +12,7 @@ et a l'etat du code a la release **0.1.0** (perimetre fonctionnel V1).
 | GET et POST exposes au niveau transport | OK | `ScryfallHttpClient`, `CardsApiClient` (POST collection) |
 | Classes, une classe par fichier | OK | Respecte la convention projet |
 | Tests miroir, classes `Test...` | OK | `tests/` aligne sur `src/` |
-| Couverture >= 90 % | OK | `pytest-cov` + `fail_under` ; verifie en CI |
+| Couverture >= 90 % | OK | `pytest-cov` + `fail_under` ; gate locale (`make quality`, `CONTRIBUTING.md`) |
 | Typage public, `py.typed` | OK | `pyproject.toml` + marqueur PEP 561 |
 | Exceptions racine projet | OK | `BaobabScryfallApiCallerException` et derivees |
 | Qualite (black, pylint, mypy, flake8, bandit) | OK | Configuration `pyproject.toml` ; execution locale ou pipeline externe |
@@ -19,7 +20,7 @@ et a l'etat du code a la release **0.1.0** (perimetre fonctionnel V1).
 
 ## Perimetre fonctionnel (services)
 
-| Domaine | Cahier des charges V1 | Implementation (0.1.0) |
+| Domaine | Cahier des charges V1 | Implementation (0.2.0) |
 |---------|------------------------|-------------------------|
 | **Cards** | id, MTGO, Cardmarket, set+numero, named, search, collection, autocomplete, random | `get_by_id`, `get_by_mtgo_id`, `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` (exact/fuzzy), `search`, `get_collection`, `autocomplete`, `random` |
 | **Sets** | liste, par code, par id, cartes par set | `list_sets`, `get_by_code`, `get_by_id`, `list_cards_in_set`, `list_cards_in_set_by_id` |
@@ -43,9 +44,10 @@ Le perimetre V1 Cards du cahier des charges est couvert par `CardsService` et ex
 ## Hors perimetre V1 (specifications)
 
 Conformement a `docs/01_specifications.md`, ne sont pas requis en V1 : couverture
-exhaustive de tous les endpoints secondaires, telechargement automatique des fichiers
-bulk, cache applicatif, retry avance, persistance locale, CLI, integration asynchrone,
-etc.
+exhaustive de tous les endpoints secondaires, **telechargement bulk sans injection
+explicite** (le telechargement assiste en 0.2.0 est opt-in via `BulkDatasetDownloader`),
+retry avance, persistance locale, CLI, integration asynchrone, etc. Le **cache GET**
+optionnel (0.2.0) est en memoire processus et desactive par defaut.
 
 ## Ecarts et limitations connues
 
@@ -65,17 +67,23 @@ etc.
 3. Etendre le perimetre endpoints (symbologie, backs, etc.) selon les besoins produit,
    sans casser l'API publique stable (`ScryfallApiCaller` + services).
 
-## Bilan release candidate (RC)
-
-Avant tag **0.1.0** / publication :
+## Bilan release 0.2.0 (publication)
 
 | Critere | Statut |
 |---------|--------|
 | Domaines V1 (Cards, Sets, Rulings, Catalogs, Bulk Data) | OK — alignes sur le code et les tests |
+| Extensions post-0.1.0 (CHANGELOG `[0.2.0]`) | OK — documentees (README, CHANGELOG, journal) |
 | Pagination / exceptions / transport injecte | OK |
-| Documentation (README, CHANGELOG, cette matrice) | OK — synchronisee avec la branche RC |
-| Qualite (black, pylint, mypy, flake8, bandit, pytest) | OK — CI sur `main` |
-| Couverture | OK — > 90 % (cible RC ~97 % sur le code mesure) |
+| Documentation (README, CHANGELOG, cette matrice, `CONTRIBUTING.md`) | OK |
+| Qualite (black, pylint, mypy, flake8, bandit, pytest) | OK — execution locale / pipeline externe |
+| Couverture | OK — > 90 % |
+
+Notes de release synthetiques : `docs/release_notes_0.2.0.md`.
 
 **Risques residuels** : voir section *Ecarts et limitations connues* ; combinaison de
 versions avec le wheel `baobab-web-api-caller` a valider chez l'integrateur.
+
+## Bilan historique — release 0.1.0 (RC)
+
+Avant tag **0.1.0** / publication initiale : memes criteres structurels ; matrice et
+README synchronises sur la branche RC ; couverture cible ~97 % sur le code mesure.

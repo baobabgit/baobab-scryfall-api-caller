@@ -127,7 +127,8 @@ La propriete en lecture seule `client.web_api_caller` retourne le transport inje
 
 ### Version et exports publics (racine)
 
-- **Version** : `0.1.0` (premiere release ; perimetre fonctionnel V1). Acces programme :
+- **Version** : `0.2.0` (release courante ; perimetre V1 conserve et extensions
+  documentees dans `CHANGELOG.md` et `docs/V1_compliance.md`). Acces programme :
   `from baobab_scryfall_api_caller import __version__`.
 - **`__all__`** : `ScryfallApiCaller`, `WebApiTransportProtocol`, `__version__`.
 - Pour les composants clients avances (ex. tests ou extension) :
@@ -230,17 +231,17 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 
 ## Etat actuel du projet
 
-- **Release V1** : version **0.1.0** ; fonctionnalites prevues au cahier des charges V1
-  sont implementees (synthese : `docs/V1_compliance.md`). La branche de stabilisation
-  a verifie l'alignement doc / code, la qualite complete et une couverture elevee
-  (~97 %) avant tag / publication PyPI.
+- **Release** : version **0.2.0** ; le perimetre **V1** du cahier des charges reste
+  couvert ; les evolutions post-0.1.0 (modeles enrichis, cache GET optionnel,
+  telechargement bulk assiste, ergonomie pagination, DX, tests live, etc.) sont
+  synthetisees dans `CHANGELOG.md` et `docs/V1_compliance.md`.
 - Structure `src/` / `tests/` / `docs/` ; tests en arborescence miroir.
 - Facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
   **Catalogs**, **Bulk Data** comme decrit ci-dessous.
 - Qualite : outils configures dans `pyproject.toml` (executes localement ou dans votre
-  pipeline ; voir section qualite ci-dessous).
-- Couverture de tests : seuil minimal **90 %** ; objectif atteint au-dela sur la branche
-  RC (rapport sous `docs/tests/coverage/`).
+  pipeline ; voir section qualite et `CONTRIBUTING.md`).
+- Couverture de tests : seuil minimal **90 %** ; rapport sous `docs/tests/coverage/`
+  (fichiers generes, non versionnes).
 
 ## Limitations connues et release readiness
 
@@ -248,8 +249,9 @@ exposes par `CardsService` (voir section Cards ci-dessous).
   vous devez composer `ServiceConfig`, `HttpTransportCaller`, `BaobabServiceCaller`
   (ou equivalent conforme a `WebApiTransportProtocol`) comme dans l'exemple du
   README.
-- **Bulk data** : pas de telechargement automatique des fichiers export ; seules les
-  metadonnees et l'URL (`download_uri`) sont exposees (hors scope V1, voir specifications).
+- **Bulk data** : sans `BulkDatasetDownloader` injecte, aucun fichier export n'est
+  telecharge — seules les metadonnees et `download_uri` sont utilisees. Avec un
+  downloader injecte, le telechargement est **explicite** (voir section Bulk Data).
 - **Tests d'integration** : suite **optionnelle** (`tests/integration`, marqueur
   `integration`) contre l'API reelle ; a lancer a la demande (reseau requis).
   Reference : `docs/live_integration_tests.md`. Les tests **unitaires** restent par
@@ -263,7 +265,7 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 ## Packaging et typage (PEP 621 / PEP 561)
 
 - **Distribution** : `pyproject.toml` (metadonnees, dependances, outils qualite).
-- **Version** : `0.1.0` (champ `project.version`, dupliquee par `__version__` dans le
+- **Version** : `0.2.0` (champ `project.version`, dupliquee par `__version__` dans le
   package racine ; doit rester alignee).
 - **Classifiers / keywords** : declares dans `pyproject.toml` pour indexation PyPI
   (Python supporte : 3.11+).
@@ -349,6 +351,7 @@ qui utilisent la **meme chaine** que le README : `ServiceConfig` → `HttpTransp
 
 Une **matrice de conformite** detaillee (exigences structurelles, synthese domaine
 Cards V1, recommandations post-V1) est maintenue dans `docs/V1_compliance.md`.
+Notes de release **0.2.0** : `docs/release_notes_0.2.0.md`.
 
 ## Transport HTTP partage
 

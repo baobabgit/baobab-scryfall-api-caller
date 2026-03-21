@@ -7,6 +7,13 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-22
+
+Deuxieme release : perimetre **V1** du cahier des charges conserve ; extensions
+documentees (modeles enrichis, cache GET optionnel, telechargement bulk assiste,
+pagination ergonomique, DX, tests d'integration live, etc.). Synthese :
+`docs/V1_compliance.md`.
+
 ### Added
 
 - **DX / diagnostic** : `CONTRIBUTING.md` (workflow local) ; Makefile etendu
