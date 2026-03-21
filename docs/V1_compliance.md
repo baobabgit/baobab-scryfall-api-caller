@@ -22,10 +22,10 @@ et a l'etat du code a la release **0.1.0** (perimetre fonctionnel V1).
 | Domaine | Cahier des charges V1 | Implementation (0.1.0) |
 |---------|------------------------|-------------------------|
 | **Cards** | id, MTGO, Cardmarket, set+numero, named, search, collection, autocomplete, random | `get_by_id`, `get_by_mtgo_id`, `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` (exact/fuzzy), `search`, `get_collection`, `autocomplete`, `random` |
-| **Sets** | liste, par code, par id | `list_sets`, `get_by_code`, `get_by_id` |
-| **Rulings** | par id carte | `list_for_card_id` (pagination) |
+| **Sets** | liste, par code, par id, cartes par set | `list_sets`, `get_by_code`, `get_by_id`, `list_cards_in_set`, `list_cards_in_set_by_id` |
+| **Rulings** | par id carte et cles alternatives | `list_for_card_id`, `list_for_card_multiverse_id`, `list_for_card_mtgo_id`, `list_for_card_arena_id` (pagination) |
 | **Catalogs** | generique + helpers | `get_catalog`, `get_card_names`, `get_creature_types`, `get_land_types`, `get_card_types`, `get_artist_names` |
-| **Bulk data** | liste, metadonnees, URL telechargement | `list_bulk_datasets`, `get_by_id`, `get_by_type` (`download_uri` expose ; pas de telechargement fichier) |
+| **Bulk data** | liste, metadonnees, telechargement optionnel | `list_bulk_datasets`, `get_by_id`, `get_by_type`, `download_bulk_dataset` (avec `BulkDatasetDownloader` injecte) |
 
 ### Domaine Cards (synthese V1)
 
@@ -51,7 +51,7 @@ etc.
 
 - **Tests d'integration** : disponibles sous `tests/integration` (a la demande, reseau
   requis) ; la suite par defaut reste **unitaire** pour la couverture et la rapidite.
-- **Telechargement bulk** : non implemente (seules metadonnees + URL).
+- **Telechargement bulk** : optionnel via `BulkDatasetDownloader` (voir README).
 - **Wheel `baobab-web-api-caller`** : les tests du depot evitent l'import top-level du
   paquet dependance en CI pour rester robustes ; l'integrateur doit valider la
   combinaison de versions en environnement reel.

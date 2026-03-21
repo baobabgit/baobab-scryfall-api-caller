@@ -20,13 +20,7 @@ from baobab_scryfall_api_caller.validation.scryfall_request_validators import (
 
 
 class RulingsService:
-    """Expose les operations Rulings V1 du perimetre courant.
-
-    Les methodes futures (autres cles de recouvrement : oracle id, etc.) pourront
-    s'appuyer sur les memes dependances injectees (`api_client`, `ruling_mapper`,
-    `list_parser`) en ajoutant de nouvelles routes metier sans modifier la structure
-    du service.
-    """
+    """Expose les operations Rulings V1 (carte par identifiant Scryfall ou cles alternatives)."""
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -65,6 +59,66 @@ class RulingsService:
         )
         params = ScryfallRequestValidators.optional_page_params(page=page)
         route = f"/cards/{normalized_id}/rulings"
+        payload = self.api_client.get(route=route, params=params)
+        return self.list_parser.parse(
+            raw_response=payload,
+            item_mapper=self.ruling_mapper.map_ruling,
+        )
+
+    def list_for_card_multiverse_id(
+        self,
+        multiverse_id: int,
+        *,
+        page: int | None = None,
+    ) -> ListResponse[Ruling]:
+        """Rulings pour une carte identifiee par multiverse id.
+
+        (`GET /cards/multiverse/{id}/rulings`.)
+        """
+        normalized = ScryfallRequestValidators.require_strict_positive_int(
+            value=multiverse_id,
+            field_name="multiverse_id",
+        )
+        params = ScryfallRequestValidators.optional_page_params(page=page)
+        route = f"/cards/multiverse/{normalized}/rulings"
+        payload = self.api_client.get(route=route, params=params)
+        return self.list_parser.parse(
+            raw_response=payload,
+            item_mapper=self.ruling_mapper.map_ruling,
+        )
+
+    def list_for_card_mtgo_id(
+        self,
+        mtgo_id: int,
+        *,
+        page: int | None = None,
+    ) -> ListResponse[Ruling]:
+        """Rulings pour une carte identifiee par son id MTGO (`GET /cards/mtgo/{id}/rulings`)."""
+        normalized = ScryfallRequestValidators.require_strict_positive_int(
+            value=mtgo_id,
+            field_name="mtgo_id",
+        )
+        params = ScryfallRequestValidators.optional_page_params(page=page)
+        route = f"/cards/mtgo/{normalized}/rulings"
+        payload = self.api_client.get(route=route, params=params)
+        return self.list_parser.parse(
+            raw_response=payload,
+            item_mapper=self.ruling_mapper.map_ruling,
+        )
+
+    def list_for_card_arena_id(
+        self,
+        arena_id: str,
+        *,
+        page: int | None = None,
+    ) -> ListResponse[Ruling]:
+        """Rulings pour une carte identifiee par son id Arena (`GET /cards/arena/{id}/rulings`)."""
+        normalized = ScryfallRequestValidators.require_non_empty_text(
+            value=arena_id,
+            field_name="arena_id",
+        )
+        params = ScryfallRequestValidators.optional_page_params(page=page)
+        route = f"/cards/arena/{normalized}/rulings"
         payload = self.api_client.get(route=route, params=params)
         return self.list_parser.parse(
             raw_response=payload,

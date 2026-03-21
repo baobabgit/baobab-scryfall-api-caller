@@ -187,3 +187,50 @@ class TestRulingsService:
         service = RulingsService(web_api_caller=caller)
         service.list_for_card_id(cid_lower.upper())
         assert caller.calls[0]["route"] == f"/cards/{cid_lower}/rulings"
+
+    def test_list_for_card_multiverse_id_route(self) -> None:
+        """Route multiverse + rulings."""
+        list_payload = {"object": "list", "has_more": False, "data": []}
+        caller = FakeWebApiCaller(response=list_payload)
+        service = RulingsService(web_api_caller=caller)
+        service.list_for_card_multiverse_id(12345, page=2)
+        assert caller.calls[0]["route"] == "/cards/multiverse/12345/rulings"
+        assert caller.calls[0]["params"] == {"page": 2}
+
+    def test_list_for_card_mtgo_id_route(self) -> None:
+        """Route MTGO + rulings."""
+        list_payload = {"object": "list", "has_more": False, "data": []}
+        caller = FakeWebApiCaller(response=list_payload)
+        service = RulingsService(web_api_caller=caller)
+        service.list_for_card_mtgo_id(999)
+        assert caller.calls[0]["route"] == "/cards/mtgo/999/rulings"
+
+    def test_list_for_card_arena_id_route(self) -> None:
+        """Route Arena + rulings."""
+        list_payload = {"object": "list", "has_more": False, "data": []}
+        caller = FakeWebApiCaller(response=list_payload)
+        service = RulingsService(web_api_caller=caller)
+        service.list_for_card_arena_id(" 123abc ")
+        assert caller.calls[0]["route"] == "/cards/arena/123abc/rulings"
+
+    def test_multiverse_id_must_be_positive(self) -> None:
+        """multiverse_id <= 0 refuse."""
+        caller = FakeWebApiCaller(response={"object": "list", "has_more": False, "data": []})
+        service = RulingsService(web_api_caller=caller)
+        try:
+            service.list_for_card_multiverse_id(0)
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_arena_id_empty(self) -> None:
+        """arena_id vide refuse."""
+        caller = FakeWebApiCaller(response={"object": "list", "has_more": False, "data": []})
+        service = RulingsService(web_api_caller=caller)
+        try:
+            service.list_for_card_arena_id("  ")
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"

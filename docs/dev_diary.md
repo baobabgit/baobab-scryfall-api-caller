@@ -1,3 +1,15 @@
+## 2026-03-23 20:30:00
+
+### Modifications
+- **Rulings** : multiverse / MTGO / Arena ; **Sets** : cartes par code ou UUID de set ;
+  cache : exclusion `/sets/.../cards` ; README, CHANGELOG, `V1_compliance.md`.
+
+### Buts
+- Couvrir des acces Scryfall utiles sans dupliquer le domaine Cards.
+
+### Impact
+- API existante preservee ; `default_cacheable_get` affiné pour les listes de cartes d'un set.
+
 ## 2026-03-23 18:00:00
 
 ### Modifications
