@@ -129,6 +129,17 @@ class TestSetsService:
         else:
             assert False, "Expected ScryfallValidationException"
 
+    def test_get_by_code_validation_non_string(self) -> None:
+        """Un code d'extension non chaine doit etre rejete."""
+        caller = FakeWebApiCaller(response=_valid_set_dict())
+        service = SetsService(web_api_caller=caller)
+        try:
+            service.get_by_code(None)  # type: ignore[arg-type]
+        except ScryfallValidationException as exception:
+            assert "must be a string" in exception.message
+        else:
+            assert False, "Expected ScryfallValidationException"
+
     def test_get_by_id_nominal(self) -> None:
         """Recuperation par UUID Scryfall."""
         set_id = "2f601c3a-3c97-4b47-9bfc-6d37dc2c7f8f"

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from baobab_scryfall_api_caller.exceptions import (
     ScryfallBulkDataException,
     ScryfallResponseFormatException,
@@ -104,3 +106,34 @@ class TestBulkDataMapper:
         payload = _valid_bulk_payload(download_uri="http://data.scryfall.io/x.json")
         result = mapper.map_bulk_data(payload)
         assert result.download_uri.startswith("http://")
+
+    @pytest.mark.parametrize(
+        "overrides",
+        [
+            pytest.param({"id": ""}, id="empty_id"),
+            pytest.param({"id": 99}, id="id_not_str"),
+            pytest.param({"uri": ""}, id="empty_uri"),
+            pytest.param({"type": ""}, id="empty_type"),
+            pytest.param({"name": ""}, id="empty_name"),
+            pytest.param({"description": None}, id="description_not_str"),
+            pytest.param({"download_uri": "  "}, id="download_uri_blank"),
+            pytest.param({"updated_at": ""}, id="empty_updated_at"),
+            pytest.param({"size": -2}, id="negative_size"),
+            pytest.param({"size": "large"}, id="size_not_int"),
+            pytest.param({"content_type": ""}, id="empty_content_type"),
+            pytest.param({"content_encoding": ""}, id="empty_content_encoding"),
+        ],
+    )
+    def test_map_bulk_data_invalid_required_fields(
+        self,
+        overrides: dict[str, Any],
+    ) -> None:
+        """Chaque champ obligatoire invalide doit produire ScryfallResponseFormatException."""
+        mapper = BulkDataMapper()
+        payload = _valid_bulk_payload(**overrides)
+        try:
+            mapper.map_bulk_data(payload)
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"

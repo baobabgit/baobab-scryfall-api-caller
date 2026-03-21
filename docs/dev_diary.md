@@ -1,3 +1,17 @@
+## 2026-03-21 18:00:00
+
+### Modifications
+- **Stabilisation V1 RC** : tests supplementaires (`BulkDataMapper` branches invalide,
+  `SetsService.get_by_code` non-string, `require_uuid_string` non-string) ; couverture
+  ~97 % ; classifier PyPI Production/Stable ; README / CHANGELOG / `V1_compliance.md`
+  (bilan RC).
+
+### Buts
+- Fermer la release candidate avant tag 0.1.0 sans nouvelle fonctionnalite metier.
+
+### Impact
+- Depôt pret pour merge `main` puis etiquetage.
+
 ## 2026-03-20 21:00:00
 
 ### Modifications

@@ -7,6 +7,15 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+### Changed
+
+- **Stabilisation V1 (release candidate)** : tests supplementaires sur les branches
+  d'erreur de `BulkDataMapper` ; validation `SetsService.get_by_code` lorsque le code
+  n'est pas une chaine ; `ScryfallRequestValidators.require_uuid_string` lorsque la
+  valeur n'est pas une chaine ; couverture globale ~97 %.
+- **Packaging** : classifier PyPI `Development Status :: 5 - Production/Stable`
+  (V1 pret pour publication).
+
 ## [0.1.0] - 2026-03-20
 
 Premiere release publique : perimetre fonctionnel **V1** aligne sur
