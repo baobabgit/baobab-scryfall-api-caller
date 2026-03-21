@@ -19,6 +19,7 @@ from baobab_scryfall_api_caller.models.cards.card_collection_identifier import (
     CardCollectionIdentifier,
 )
 from baobab_scryfall_api_caller.models.cards.card_collection_result import CardCollectionResult
+from baobab_scryfall_api_caller.models.cards.card_search_query import CardSearchQuery
 from baobab_scryfall_api_caller.models.common.list_response import ListResponse
 from baobab_scryfall_api_caller.pagination.scryfall_list_response_parser import (
     ScryfallListResponseParser,
@@ -136,16 +137,36 @@ class CardsService:
         payload = self.api_client.get(route="/cards/named", params=params)
         return self.card_mapper.map_card(payload)
 
-    def search(self, *, q: str, page: int | None = None) -> ListResponse[Card]:
+    def search(
+        self,
+        *,
+        q: str | None = None,
+        page: int | None = None,
+        query: CardSearchQuery | None = None,
+    ) -> ListResponse[Card]:
         """Recherche de cartes via le DSL Scryfall (`GET /cards/search`, liste paginee).
 
-        Le parametre ``q`` est transmis tel quel a l'API (sans reecriture du DSL),
-        apres validation de type et de non-vide (strip pour le test de vide uniquement).
+        Fournir **exactement un** parmi ``q`` (DSL brut) ou ``query`` (assembleur
+        :class:`~baobab_scryfall_api_caller.models.cards.card_search_query.CardSearchQuery`).
+        La chaine envoyee a l'API est identique au DSL Scryfall (aucune reecriture
+        semantique), avec validation de non-vide.
         """
-        validated_q = ScryfallRequestValidators.require_scryfall_query_string(
-            value=q,
-            field_name="q",
-        )
+        if (q is None) == (query is None):
+            raise ScryfallValidationException(
+                "Provide exactly one of 'q' or 'query'.",
+                params={"q": q, "query": query},
+            )
+        if query is not None:
+            validated_q = ScryfallRequestValidators.require_scryfall_query_string(
+                value=query.to_query_string(),
+                field_name="q",
+            )
+        else:
+            assert q is not None
+            validated_q = ScryfallRequestValidators.require_scryfall_query_string(
+                value=q,
+                field_name="q",
+            )
         params: dict[str, Any] = {"q": validated_q}
         page_params = ScryfallRequestValidators.optional_page_params(page=page)
         if page_params is not None:

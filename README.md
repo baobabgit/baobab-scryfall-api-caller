@@ -390,7 +390,7 @@ collection) sont exposees.
 | `get_by_cardmarket_id(cardmarket_id)` | `Card` | `GET /cards/cardmarket/{id}` |
 | `get_by_set_and_number(set_code, collector_number)` | `Card` | `GET /cards/{set}/{collector_number}` |
 | `get_named(exact=...)` ou `get_named(fuzzy=...)` | `Card` | `GET /cards/named` |
-| `search(q=..., page=...)` | `ListResponse[Card]` | `GET /cards/search` |
+| `search(q=..., page=...)` ou `search(query=..., page=...)` | `ListResponse[Card]` | `GET /cards/search` |
 | `autocomplete(q=...)` | `AutocompleteResult` | `GET /cards/autocomplete` |
 | `random(q=...)` | `Card` | `GET /cards/random` |
 | `get_collection(identifiers=...)` | `CardCollectionResult` | `POST /cards/collection` |
@@ -405,7 +405,7 @@ Exemple (facade) :
 
 ```python
 from baobab_scryfall_api_caller import ScryfallApiCaller
-from baobab_scryfall_api_caller.models.cards import CardCollectionIdentifier
+from baobab_scryfall_api_caller.models.cards import CardCollectionIdentifier, CardSearchQuery
 
 client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
@@ -415,7 +415,10 @@ card_by_cm = client.cards.get_by_cardmarket_id(67890)
 card_by_set = client.cards.get_by_set_and_number("lea", "233")
 card_named = client.cards.get_named(exact="Black Lotus")
 
-search_page = client.cards.search(q="type:creature cmc=3")
+search_page = client.cards.search(q="t:creature cmc=3")
+same_as_builder = client.cards.search(
+    query=CardSearchQuery().type_line("creature").cmc(3),
+)
 suggestions = client.cards.autocomplete(q="light")
 lucky = client.cards.random()
 lucky_filtered = client.cards.random(q="type:creature")
@@ -433,8 +436,10 @@ Contraintes et comportements :
 - **Champs texte** (`card_id`, codes set, `exact` / `fuzzy`, etc.) : non vides apres
   `strip` ; le code d'extension est en outre passe en minuscules dans l'URL.
 - **named** : exactement un seul parmi `exact` ou `fuzzy`.
-- **search / autocomplete / random** : `q` doit etre une chaine non vide (test de vide
-  apres `strip`) ; le DSL transmis a Scryfall n'est pas reecrit.
+- **search** : fournir **exactement un** parmi `q` (DSL brut Scryfall) ou `query`
+  (`CardSearchQuery` assemble en chaine puis envoyee comme `q`) ; ne pas combiner les deux.
+- **autocomplete / random** : `q` doit etre une chaine non vide (test de vide apres
+  `strip`) ; le DSL transmis a Scryfall n'est pas reecrit pour ces methodes.
 - **search** : `page` optionnel (entier >= 1) ; reponse avec `metadata` (`has_more`,
   `next_page`, `total_cards`, `warnings`) via `ScryfallListResponseParser` ; aucune
   pagination reseau supplementaire n'est declenchee automatiquement.

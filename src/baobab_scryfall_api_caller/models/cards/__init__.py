@@ -10,6 +10,7 @@ from baobab_scryfall_api_caller.models.cards.card_collection_identifier import (
 )
 from baobab_scryfall_api_caller.models.cards.card_collection_result import CardCollectionResult
 from baobab_scryfall_api_caller.models.cards.card_face import CardFace
+from baobab_scryfall_api_caller.models.cards.card_search_query import CardSearchQuery
 
 __all__ = [
     "AutocompleteResult",
@@ -17,5 +18,6 @@ __all__ = [
     "CardCollectionIdentifier",
     "CardCollectionResult",
     "CardFace",
+    "CardSearchQuery",
     "MAX_CARD_COLLECTION_IDENTIFIERS",
 ]

@@ -1,3 +1,15 @@
+## 2026-03-22 23:45:00
+
+### Modifications
+- **CardSearchQuery** : assembleur optionnel pour `GET /cards/search` ; `search(q=...)`
+  ou `search(query=...)` exclusif ; validations legeres ; README + CHANGELOG + tests.
+
+### Buts
+- Ergonomie sans remplacer le DSL brut ; pas de reecriture semantique cote client.
+
+### Impact
+- API publique etendue de maniere compatible ; imports depuis `models.cards`.
+
 ## 2026-03-22 22:30:00
 
 ### Modifications
