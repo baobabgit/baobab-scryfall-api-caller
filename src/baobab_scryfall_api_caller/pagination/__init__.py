@@ -1,5 +1,9 @@
 """Exports publics des composants de pagination."""
 
+from baobab_scryfall_api_caller.pagination.list_response_follow import (
+    iter_list_items,
+    iter_list_pages,
+)
 from baobab_scryfall_api_caller.pagination.scryfall_list_response_parser import (
     ScryfallListResponseParser,
 )
@@ -12,4 +16,6 @@ __all__ = [
     "ScryfallListResponseParser",
     "ScryfallListResponseValidator",
     "ScryfallPage",
+    "iter_list_items",
+    "iter_list_pages",
 ]
