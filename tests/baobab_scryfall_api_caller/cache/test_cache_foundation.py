@@ -55,6 +55,17 @@ class TestDefaultCacheableGet:
         assert default_cacheable_get("/cards/random", None) is False
         assert default_cacheable_get("/cards/autocomplete", {"q": "a"}) is False
 
+    def test_excludes_set_card_lists(self) -> None:
+        """Listes de cartes par set : non cachees par defaut."""
+        assert default_cacheable_get("/sets/neo/cards", {"page": 1}) is False
+        assert (
+            default_cacheable_get(
+                "/sets/00000000-0000-4000-8000-000000000001/cards",
+                None,
+            )
+            is False
+        )
+
 
 class TestInMemoryJsonCache:
     """Copies defensives et clear."""

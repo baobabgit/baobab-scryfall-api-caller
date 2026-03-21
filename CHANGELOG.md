@@ -9,6 +9,11 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Rulings** : `list_for_card_multiverse_id`, `list_for_card_mtgo_id`,
+  `list_for_card_arena_id` (routes Scryfall alignees sur les identifiants alternatifs).
+- **Sets** : `list_cards_in_set`, `list_cards_in_set_by_id` (`GET /sets/.../cards`) ;
+  `SetsService` accepte un `CardMapper` injectable ; predicat de cache par defaut :
+  pas de mise en cache des listes `/sets/.../cards`.
 - **Bulk Data : telechargement assiste** : `BulkDatasetDownloader` (delegation a
   `BulkFileDownloader` de `baobab-web-api-caller`), methodes
   `download_bulk_dataset` / `download_bulk_dataset_by_type` / `download_bulk_dataset_by_id`

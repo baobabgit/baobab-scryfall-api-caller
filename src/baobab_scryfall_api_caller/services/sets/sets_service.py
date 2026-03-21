@@ -9,7 +9,9 @@ from typing import Any
 from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
+from baobab_scryfall_api_caller.mappers.card_mapper import CardMapper
 from baobab_scryfall_api_caller.mappers.set_mapper import SetMapper
+from baobab_scryfall_api_caller.models.cards.card import Card
 from baobab_scryfall_api_caller.models.common.list_response import ListResponse
 from baobab_scryfall_api_caller.models.sets.set import Set
 from baobab_scryfall_api_caller.pagination.scryfall_list_response_parser import (
@@ -24,7 +26,7 @@ _SET_CODE_PATTERN = re.compile(r"^[a-z0-9]{2,10}$")
 
 
 class SetsService:
-    """Expose les operations Sets V1 du perimetre courant."""
+    """Expose les operations Sets V1 (metadonnees d'extensions et cartes par extension)."""
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -32,6 +34,7 @@ class SetsService:
         web_api_caller: WebApiTransportProtocol,
         api_client: SetsApiClient | None = None,
         set_mapper: SetMapper | None = None,
+        card_mapper: CardMapper | None = None,
         list_parser: ScryfallListResponseParser | None = None,
         response_cache: JsonResponseCache | None = None,
         cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
@@ -43,6 +46,7 @@ class SetsService:
             cacheable_get_predicate=cacheable_get_predicate,
         )
         self.set_mapper = set_mapper or SetMapper()
+        self.card_mapper = card_mapper or CardMapper()
         self.list_parser = list_parser or ScryfallListResponseParser()
 
     def list_sets(self, *, page: int | None = None) -> ListResponse[Set]:
@@ -68,6 +72,42 @@ class SetsService:
         )
         payload = self.api_client.get(route=f"/sets/{normalized}")
         return self.set_mapper.map_set(payload)
+
+    def list_cards_in_set(
+        self,
+        set_code: str,
+        *,
+        page: int | None = None,
+    ) -> ListResponse[Card]:
+        """Liste paginee des cartes d'un set par code d'extension (`GET /sets/{code}/cards`)."""
+        normalized = self._require_valid_set_code(set_code=set_code)
+        params = ScryfallRequestValidators.optional_page_params(page=page)
+        payload = self.api_client.get(route=f"/sets/{normalized}/cards", params=params)
+        return self.list_parser.parse(
+            raw_response=payload,
+            item_mapper=self.card_mapper.map_card,
+        )
+
+    def list_cards_in_set_by_id(
+        self,
+        set_id: str,
+        *,
+        page: int | None = None,
+    ) -> ListResponse[Card]:
+        """Cartes d'un set par identifiant UUID Scryfall.
+
+        (`GET /sets/{id}/cards`.)
+        """
+        normalized = ScryfallRequestValidators.require_uuid_string(
+            value=set_id,
+            field_name="set_id",
+        )
+        params = ScryfallRequestValidators.optional_page_params(page=page)
+        payload = self.api_client.get(route=f"/sets/{normalized}/cards", params=params)
+        return self.list_parser.parse(
+            raw_response=payload,
+            item_mapper=self.card_mapper.map_card,
+        )
 
     @staticmethod
     def _require_valid_set_code(*, set_code: str) -> str:

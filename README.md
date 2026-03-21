@@ -212,8 +212,9 @@ Regles structurantes :
 - **cards** : `get_by_id`, `get_by_mtgo_id`, `get_by_cardmarket_id`,
   `get_by_set_and_number`, `get_named` (exact ou fuzzy), `search`, `autocomplete`,
   `random`, `get_collection` ;
-- **sets** : liste paginee, `get_by_code`, `get_by_id` ;
-- **rulings** : `list_for_card_id` (pagination) ;
+- **sets** : liste paginee, `get_by_code`, `get_by_id`, `list_cards_in_set` /
+  `list_cards_in_set_by_id` ;
+- **rulings** : `list_for_card_id`, multiverse / MTGO / Arena (pagination) ;
 - **catalogs** : `get_catalog` et helpers (noms, types, artistes, etc.) ;
 - **bulk data** : liste des jeux, `get_by_id`, `get_by_type`, telechargement optionnel
   via `BulkDatasetDownloader` ;
@@ -482,7 +483,11 @@ Disponible via `client.sets` ou `SetsService` :
 
 - `list_sets(*, page=...)` : liste paginee (`ListResponse[Set]`) via `GET /sets` ;
 - `get_by_code(set_code)` : `GET /sets/{code}` avec validation locale du code ;
-- `get_by_id(set_id)` : `GET /sets/{id}` avec validation UUID.
+- `get_by_id(set_id)` : `GET /sets/{id}` avec validation UUID ;
+- `list_cards_in_set(set_code, *, page=...)` : cartes d'un set par code
+  (`GET /sets/{code}/cards`, `ListResponse[Card]`) ;
+- `list_cards_in_set_by_id(set_id, *, page=...)` : memes cartes adressees par UUID de set
+  (`GET /sets/{id}/cards`).
 
 Exemple :
 
@@ -494,20 +499,26 @@ client = ScryfallApiCaller(web_api_caller=web_api_caller)
 all_sets_page = client.sets.list_sets()
 neo = client.sets.get_by_code("neo")
 one = client.sets.get_by_id("2f601c3a-3c97-4b47-9bfc-6d37dc2c7f8f")
+cards_page = client.sets.list_cards_in_set("neo")
 ```
 
 Contraintes metier appliquees :
 
 - le code set est normalise en minuscules et valide sur un motif alphanumerique court ;
 - l'identifiant Scryfall doit etre un UUID valide ;
-- les reponses liste utilisent `ScryfallListResponseParser` (pagination `has_more` / `next_page`).
+- les reponses liste utilisent `ScryfallListResponseParser` (pagination `has_more` / `next_page`) ;
+- les listes de cartes sont mappees via `CardMapper` (injection optionnelle au constructeur).
 
 ## Rulings (perimetre actuel)
 
 Disponible via `client.rulings` ou `RulingsService` :
 
 - `list_for_card_id(card_id, page=...)` : rulings Oracle pour une carte
-  (`GET /cards/{id}/rulings`), reponse `ListResponse[Ruling]` paginee.
+  (`GET /cards/{id}/rulings`), reponse `ListResponse[Ruling]` paginee ;
+- `list_for_card_multiverse_id(multiverse_id, page=...)` :
+  `GET /cards/multiverse/{id}/rulings` ;
+- `list_for_card_mtgo_id(mtgo_id, page=...)` : `GET /cards/mtgo/{id}/rulings` ;
+- `list_for_card_arena_id(arena_id, page=...)` : `GET /cards/arena/{id}/rulings`.
 
 Exemple :
 
@@ -517,11 +528,13 @@ from baobab_scryfall_api_caller import ScryfallApiCaller
 client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
 page = client.rulings.list_for_card_id("00000000-0000-4000-8000-000000000001")
+by_mv = client.rulings.list_for_card_multiverse_id(123456)
 ```
 
 Contraintes metier appliquees :
 
-- l'identifiant carte doit etre un UUID Scryfall valide ;
+- l'identifiant carte (`list_for_card_id`) doit etre un UUID Scryfall valide ;
+- multiverse id et mtgo id : entiers strictement positifs ; arena id : texte non vide ;
 - le parametre `page` est optionnel et valide comme entier strictement positif ;
 - les reponses liste sont parsees via `ScryfallListResponseParser`.
 

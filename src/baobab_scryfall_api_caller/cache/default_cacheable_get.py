@@ -13,16 +13,14 @@ def default_cacheable_get(route: str, params: dict[str, Any] | None) -> bool:
     """
     _ = params
     r = route if route.startswith("/") else f"/{route}"
-    if r.startswith("/catalog/"):
-        return True
-    if r.startswith("/bulk-data"):
+    if r.startswith("/catalog/") or r.startswith("/bulk-data"):
         return True
     if r.startswith("/sets"):
-        return True
+        # Listes de cartes : trop volumineuses / dynamiques pour le cache par defaut.
+        return "/cards" not in r
     if r.startswith("/cards/") and "/rulings" in r:
         return True
     if r.startswith("/cards/"):
         first_segment = r[len("/cards/") :].split("/")[0]
-        if len(first_segment) == 36 and first_segment.count("-") == 4:
-            return True
+        return len(first_segment) == 36 and first_segment.count("-") == 4
     return False

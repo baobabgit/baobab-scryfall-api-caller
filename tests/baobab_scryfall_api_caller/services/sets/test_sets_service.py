@@ -10,8 +10,13 @@ from baobab_scryfall_api_caller.exceptions import (
     ScryfallResponseFormatException,
     ScryfallValidationException,
 )
+from baobab_scryfall_api_caller.models.cards.card import Card
 from baobab_scryfall_api_caller.models.sets.set import Set
 from baobab_scryfall_api_caller.services.sets.sets_service import SetsService
+
+
+def _card_dict(cid: str = "a", name: str = "Name") -> dict[str, Any]:
+    return {"object": "card", "id": cid, "name": name}
 
 
 def _valid_set_dict(**overrides: Any) -> dict[str, Any]:
@@ -210,3 +215,38 @@ class TestSetsService:
             assert True
         else:
             assert False, "Expected ScryfallResponseFormatException"
+
+    def test_list_cards_in_set_by_code(self) -> None:
+        """GET /sets/{code}/cards parse en ListResponse[Card]."""
+        list_payload = {
+            "object": "list",
+            "has_more": False,
+            "data": [_card_dict("c1", "One"), _card_dict("c2", "Two")],
+        }
+        caller = FakeWebApiCaller(response=list_payload)
+        service = SetsService(web_api_caller=caller)
+        result = service.list_cards_in_set(" NEO ", page=1)
+        assert len(result.data) == 2
+        assert all(isinstance(c, Card) for c in result.data)
+        assert caller.calls[0]["route"] == "/sets/neo/cards"
+        assert caller.calls[0]["params"] == {"page": 1}
+
+    def test_list_cards_in_set_by_id(self) -> None:
+        """GET /sets/{uuid}/cards."""
+        sid = "2f601c3a-3c97-4b47-9bfc-6d37dc2c7f8f"
+        list_payload = {"object": "list", "has_more": False, "data": [_card_dict()]}
+        caller = FakeWebApiCaller(response=list_payload)
+        service = SetsService(web_api_caller=caller)
+        service.list_cards_in_set_by_id(sid.upper())
+        assert caller.calls[0]["route"] == f"/sets/{sid}/cards"
+
+    def test_list_cards_in_set_invalid_code(self) -> None:
+        """Validation du code set pour list_cards_in_set."""
+        caller = FakeWebApiCaller(response={"object": "list", "has_more": False, "data": []})
+        service = SetsService(web_api_caller=caller)
+        try:
+            service.list_cards_in_set("!!!")
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
