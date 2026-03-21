@@ -127,9 +127,9 @@ La propriete en lecture seule `client.web_api_caller` retourne le transport inje
 
 ### Version et exports publics (racine)
 
-- **Version** : `0.2.0` (release courante ; perimetre V1 conserve et extensions
-  documentees dans `CHANGELOG.md` et `docs/V1_compliance.md`). Acces programme :
-  `from baobab_scryfall_api_caller import __version__`.
+- **Version** : `1.0.0` (premiere release **stable** semver ; perimetre V1 conserve,
+  extensions documentees dans `CHANGELOG.md` et `docs/V1_compliance.md`). Acces
+  programme : `from baobab_scryfall_api_caller import __version__`.
 - **`__all__`** : `ScryfallApiCaller`, `WebApiTransportProtocol`, `__version__`.
 - Pour les composants clients avances (ex. tests ou extension) :
   `from baobab_scryfall_api_caller.client import ScryfallHttpClient` (non reexportes
@@ -231,10 +231,9 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 
 ## Etat actuel du projet
 
-- **Release** : version **0.2.0** ; le perimetre **V1** du cahier des charges reste
-  couvert ; les evolutions post-0.1.0 (modeles enrichis, cache GET optionnel,
-  telechargement bulk assiste, ergonomie pagination, DX, tests live, etc.) sont
-  synthetisees dans `CHANGELOG.md` et `docs/V1_compliance.md`.
+- **Release** : version **1.0.0** (stable) ; le perimetre **V1** du cahier des charges
+  reste couvert ; l'historique fonctionnel (0.1.x, 0.2.0) est dans `CHANGELOG.md` ;
+  la matrice a jour est dans `docs/V1_compliance.md`.
 - Structure `src/` / `tests/` / `docs/` ; tests en arborescence miroir.
 - Facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
   **Catalogs**, **Bulk Data** comme decrit ci-dessous.
@@ -265,7 +264,7 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 ## Packaging et typage (PEP 621 / PEP 561)
 
 - **Distribution** : `pyproject.toml` (metadonnees, dependances, outils qualite).
-- **Version** : `0.2.0` (champ `project.version`, dupliquee par `__version__` dans le
+- **Version** : `1.0.0` (champ `project.version`, dupliquee par `__version__` dans le
   package racine ; doit rester alignee).
 - **Classifiers / keywords** : declares dans `pyproject.toml` pour indexation PyPI
   (Python supporte : 3.11+).
@@ -351,7 +350,8 @@ qui utilisent la **meme chaine** que le README : `ServiceConfig` → `HttpTransp
 
 Une **matrice de conformite** detaillee (exigences structurelles, synthese domaine
 Cards V1, recommandations post-V1) est maintenue dans `docs/V1_compliance.md`.
-Notes de release **0.2.0** : `docs/release_notes_0.2.0.md`.
+Notes de release **1.0.0** : `docs/release_notes_1.0.0.md` ; historique **0.2.0** :
+`docs/release_notes_0.2.0.md`.
 
 ## Transport HTTP partage
 
