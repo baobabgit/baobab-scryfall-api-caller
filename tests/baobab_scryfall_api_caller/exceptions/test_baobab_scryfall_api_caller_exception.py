@@ -59,3 +59,15 @@ class TestBaobabScryfallApiCallerException:
         assert "payload=" in text
         assert "response_detail=" in text
         assert "cause=" in text
+
+    def test_str_truncates_very_long_context_repr(self) -> None:
+        """Les tres gros contextes ne doivent pas saturer le message textuel."""
+        huge = "x" * 800
+        exception = BaobabScryfallApiCallerException(
+            "Trop long",
+            params={"q": huge},
+        )
+        text = str(exception)
+        assert "Trop long" in text
+        assert "..." in text
+        assert len(text) < len(huge)

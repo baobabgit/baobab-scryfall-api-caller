@@ -59,14 +59,19 @@ python -c "import baobab_web_api_caller; print('import baobab_web_api_caller: ok
 python -m pytest tests/integration --no-cov -m integration
 ```
 
-**Cibles Makefile** (optionnel ; sous Unix ou Git Bash : `make`) :
+**Cibles Makefile** (optionnel ; sous Unix, Git Bash ou WSL : `make`) :
 
 - `make install-dev` — installe ce projet en editable avec `[dev]` (meme prerequis
   que les tests d'integration) ;
 - `make install-integration-deps` — alias de `install-dev` (nom explicite pour CI
   ou scripts) ;
 - `make test` / `make test-unit` — `pytest` avec couverture et seuil 90 % (defaut) ;
-- `make test-integration` — `pytest tests/integration --no-cov -m integration`.
+- `make test-integration` — `pytest tests/integration --no-cov -m integration` ;
+- `make format` / `make format-check` — `black` ;
+- `make lint` — `flake8` + `pylint` ;
+- `make typecheck` — `mypy` ;
+- `make security` — `bandit` ;
+- `make quality` / `make check` — gate complete (voir `CONTRIBUTING.md`).
 
 Recettes CI detaillees (PyPI, wheel artefact, editable) : **`docs/ci_integration_tests.md`**.
 
@@ -269,6 +274,9 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 
 ## Qualite et couverture de tests
 
+Un **guide contributeur** (ordre des verifications, tests integration, raccourcis) :
+**[`CONTRIBUTING.md`](CONTRIBUTING.md)**.
+
 Les commandes suivantes sont attendues vertes avant fusion :
 
 - `python -m black src tests`
@@ -290,6 +298,13 @@ Les commandes suivantes sont attendues vertes avant fusion :
   sans lien avec la regression sur les unites.
 - **Confort** : `make test` / `make test-unit` (idem `pytest`) ; `make test-integration`
   (meme ligne que l'integration ci-dessus).
+
+Le defaut `pytest` inclut **`-ra`** : resume en fin de run (skipped, xfail, etc.) pour
+un diagnostic plus lisible.
+
+**Gate locale complete** (format, lint, mypy, bandit, pytest) : `make quality` ou
+`make check` ; **sans Make** : `scripts/run_quality.ps1` (PowerShell) ou
+`scripts/run_quality.sh` (Bash), depuis la racine du depot.
 
 Le seuil **90 %** reste exige pour les **runs habituels** ; couper la couverture pour la
 sous-suite reseau **ne reduit pas** cette exigence sur le package dans le flux standard.

@@ -53,13 +53,13 @@ class TestBulkDatasetDownloader:
         else:
             assert False, "Expected ScryfallValidationException"
 
-    def test_chunk_size_positive(self) -> None:
+    def test_chunk_size_positive(self, tmp_path: Path) -> None:
         """chunk_size <= 0 invalide."""
         downloader = BulkDatasetDownloader(session_factory=RequestsSessionFactory())
         with pytest.raises(ScryfallValidationException):
             downloader.download(
                 bulk_data=_sample_bulk_data(),
-                destination_path=Path("/tmp/x.json"),
+                destination_path=tmp_path / "x.json",
                 chunk_size=0,
             )
 

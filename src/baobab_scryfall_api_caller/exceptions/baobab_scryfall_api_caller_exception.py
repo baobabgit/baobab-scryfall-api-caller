@@ -4,6 +4,17 @@ from __future__ import annotations
 
 from typing import Any
 
+# Limite de caracteres par champ dans str() pour garder les logs et tracebacks lisibles.
+_MAX_CONTEXT_REPR_LEN = 500
+
+
+def _short_repr(value: Any) -> str:
+    """repr() tronque si necessaire (evite mur de texte sur gros payloads)."""
+    text = repr(value)
+    if len(text) <= _MAX_CONTEXT_REPR_LEN:
+        return text
+    return f"{text[: _MAX_CONTEXT_REPR_LEN - 3]}..."
+
 
 class BaobabScryfallApiCallerException(Exception):
     """Exception racine pour toutes les erreurs metier du projet.
@@ -54,13 +65,13 @@ class BaobabScryfallApiCallerException(Exception):
         if self.url:
             context_parts.append(f"url={self.url}")
         if self.params is not None:
-            context_parts.append(f"params={self.params!r}")
+            context_parts.append(f"params={_short_repr(self.params)}")
         if self.payload is not None:
-            context_parts.append(f"payload={self.payload!r}")
+            context_parts.append(f"payload={_short_repr(self.payload)}")
         if self.response_detail is not None:
-            context_parts.append(f"response_detail={self.response_detail!r}")
+            context_parts.append(f"response_detail={_short_repr(self.response_detail)}")
         if self.cause is not None:
-            context_parts.append(f"cause={self.cause!r}")
+            context_parts.append(f"cause={_short_repr(self.cause)}")
 
         if not context_parts:
             return self.message

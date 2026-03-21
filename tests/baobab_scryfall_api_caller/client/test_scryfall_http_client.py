@@ -201,8 +201,8 @@ class TestScryfallHttpClient:
         client = ScryfallHttpClient(web_api_caller=web_api_caller)
         try:
             client.get(route="/resource")
-        except ScryfallResponseFormatException:
-            assert True
+        except ScryfallResponseFormatException as exception:
+            assert "str" in exception.message
         else:
             assert False, "Expected ScryfallResponseFormatException"
 

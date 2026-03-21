@@ -209,7 +209,10 @@ class TestBulkDataService:
         service = BulkDataService(web_api_caller=caller)
         meta = service.get_by_type("oracle-cards")
         try:
-            service.download_bulk_dataset(bulk_data=meta, destination_path=Path("/tmp/x.json"))
+            service.download_bulk_dataset(
+                bulk_data=meta,
+                destination_path=Path("/tmp/x.json"),  # nosec B108
+            )
         except ScryfallValidationException as exc:
             assert "BulkDatasetDownloader" in exc.message
         else:

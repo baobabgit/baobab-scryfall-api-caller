@@ -211,7 +211,8 @@ class ScryfallHttpClient:
                 return payload
 
         raise ScryfallResponseFormatException(
-            "Scryfall API client received an invalid response format.",
+            "Scryfall API client received an invalid response format "
+            f"(expected dict or response with json_data; got {type(raw_response).__name__!r}).",
             response_detail=raw_response,
         )
 
