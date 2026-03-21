@@ -80,9 +80,12 @@ skips = ["B101"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "--strict-markers --strict-config --cov=baobab_scryfall_api_caller --cov-report=term-missing --cov-report=html:docs/tests/coverage/html --cov-report=xml:docs/tests/coverage/coverage.xml --cov-report=json:docs/tests/coverage/coverage.json --cov-fail-under=90"
+addopts = "--strict-markers --strict-config --ignore=tests/integration --cov=baobab_scryfall_api_caller --cov-report=term-missing --cov-report=html:docs/tests/coverage/html --cov-report=xml:docs/tests/coverage/coverage.xml --cov-report=json:docs/tests/coverage/coverage.json --cov-fail-under=90"
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+  "integration: tests reseau contre api.scryfall.com (dossier tests/integration)",
+]
 
 [tool.coverage.run]
 branch = true

@@ -1,3 +1,17 @@
+## 2026-03-21 22:00:00
+
+### Modifications
+- **Tests d'integration Scryfall** : `tests/integration` (fixture `live_scryfall_client`,
+  marqueur `integration`, constantes `scryfall_live_constants.py`) ; pytest ignore ce
+  dossier par defaut ; suppression du workflow GitHub Actions ; README / CHANGELOG /
+  `V1_compliance.md`.
+
+### Buts
+- Valider la chaine reelle `baobab-web-api-caller` + `ScryfallApiCaller` sans HTTP direct.
+
+### Impact
+- `python -m pytest` = unites ; `python -m pytest tests/integration --no-cov` = reseau.
+
 ## 2026-03-21 18:00:00
 
 ### Modifications
