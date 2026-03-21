@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
+from baobab_scryfall_api_caller.cache.default_cacheable_get import default_cacheable_get
+from baobab_scryfall_api_caller.cache.get_cache_key import make_get_cache_key
+from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.baobab_query_params_normalizer import (
     BaobabQueryParamsNormalizer,
 )
@@ -30,17 +34,44 @@ class ScryfallHttpClient:
         *,
         web_api_caller: WebApiTransportProtocol,
         error_translator: ScryfallErrorTranslator | None = None,
+        response_cache: JsonResponseCache | None = None,
+        cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
     ) -> None:
         """Initialise le client HTTP partage.
 
         :param web_api_caller: couche de transport ``baobab-web-api-caller`` (ex.
             `BaobabServiceCaller` compose avec `HttpTransportCaller`).
+        :param response_cache: cache optionnel de payloads JSON (GET reussis uniquement) ;
+            desactive si ``None``.
+        :param cacheable_get_predicate: indique si un GET donne peut etre mis en cache ;
+            si ``None`` et qu'un cache est fourni,
+            :func:`~baobab_scryfall_api_caller.cache.default_cacheable_get.default_cacheable_get`
+            est utilise.
         """
         self.web_api_caller: WebApiTransportProtocol = web_api_caller
         self.error_translator = error_translator or ScryfallErrorTranslator()
+        self._response_cache: JsonResponseCache | None = response_cache
+        if response_cache is None:
+            self._cache_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None
+        elif cacheable_get_predicate is not None:
+            self._cache_predicate = cacheable_get_predicate
+        else:
+            self._cache_predicate = default_cacheable_get
 
     def get(self, *, route: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Execute un GET et retourne un payload dictionnaire."""
+        use_cache = (
+            self._response_cache is not None
+            and self._cache_predicate is not None
+            and self._cache_predicate(route, params)
+        )
+        cache_key: str | None = None
+        if use_cache:
+            cache_key = make_get_cache_key(route=route, params=params)
+            cached = self._response_cache.get(cache_key) if self._response_cache else None
+            if cached is not None:
+                return cached
+
         try:
             raw_response = self._perform_get(route=route, params=params)
         except Exception as error:  # pylint: disable=broad-exception-caught
@@ -68,7 +99,15 @@ class ScryfallHttpClient:
             )
             raise translated
 
+        if use_cache and cache_key is not None and self._response_cache is not None:
+            self._response_cache.set(cache_key, payload)
+
         return payload
+
+    @property
+    def json_response_cache(self) -> JsonResponseCache | None:
+        """Cache JSON injecte (``None`` si aucun cache n'est configure)."""
+        return self._response_cache
 
     def post(
         self,

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any
 
+from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.autocomplete_mapper import AutocompleteMapper
@@ -48,9 +49,15 @@ class CardsService:
         list_parser: ScryfallListResponseParser | None = None,
         autocomplete_mapper: AutocompleteMapper | None = None,
         collection_mapper: CardCollectionMapper | None = None,
+        response_cache: JsonResponseCache | None = None,
+        cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
     ) -> None:
         """Initialise le service Cards et les mappers / clients injectables."""
-        self.api_client = api_client or CardsApiClient(web_api_caller=web_api_caller)
+        self.api_client = api_client or CardsApiClient(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
         self.card_mapper = card_mapper or CardMapper()
         self.list_parser = list_parser or ScryfallListResponseParser()
         self.autocomplete_mapper = autocomplete_mapper or AutocompleteMapper()

@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+from typing import Any
 
+from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.catalog_mapper import CatalogMapper
@@ -21,15 +24,21 @@ class CatalogsService:
     de construction d'URL, de validation transport et de mapping.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         web_api_caller: WebApiTransportProtocol,
         api_client: CatalogsApiClient | None = None,
         catalog_mapper: CatalogMapper | None = None,
+        response_cache: JsonResponseCache | None = None,
+        cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
     ) -> None:
         """Initialise le service Catalogs avec ses dependances."""
-        self.api_client = api_client or CatalogsApiClient(web_api_caller=web_api_caller)
+        self.api_client = api_client or CatalogsApiClient(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
         self.catalog_mapper = catalog_mapper or CatalogMapper()
 
     def get_catalog(self, catalog_key: str) -> Catalog:

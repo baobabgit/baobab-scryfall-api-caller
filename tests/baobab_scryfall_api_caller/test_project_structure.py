@@ -28,6 +28,7 @@ class TestProjectStructure:
             project_root / "src" / "baobab_scryfall_api_caller" / "mappers",
             project_root / "src" / "baobab_scryfall_api_caller" / "constants",
             project_root / "src" / "baobab_scryfall_api_caller" / "utils",
+            project_root / "src" / "baobab_scryfall_api_caller" / "cache",
         ]
 
         assert all(directory.exists() and directory.is_dir() for directory in required_directories)
