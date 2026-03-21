@@ -1,3 +1,18 @@
+## 2026-03-23 16:00:00
+
+### Modifications
+- **Preparation publication 1.0.0** : `docs/publishing_checklist.md` ; extension
+  `docs/release_notes_1.0.0.md` ; README (liens checklist / absence CI publication) ;
+  `CHANGELOG` (sous-section documentation) ; `V1_compliance.md` ; `.gitignore` `dist/`
+  et `build/`. Verification : `python -m build`, `twine check`, wheel installe dans un
+  venv propre (imports `ScryfallApiCaller`, `__version__`).
+
+### Buts
+- Depôt publiable sur PyPI et taggable sans surprise ; pas de publication ni tag dans ce commit.
+
+### Impact
+- Aucune logique metier modifiee.
+
 ## 2026-03-23 10:00:00
 
 ### Modifications

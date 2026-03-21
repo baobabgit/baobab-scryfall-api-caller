@@ -71,3 +71,7 @@ Pour une **release semver** : aligner `pyproject.toml` (`project.version`),
 `baobab_scryfall_api_caller.__version__`, le test `test_package_bootstrap`, puis
 `CHANGELOG` (section versionnee), `docs/V1_compliance.md` si la matrice change, et
 eventuellement `docs/release_notes_X.Y.Z.md`.
+
+Avant publication PyPI : construire les artefacts (`python -m build`), executer
+`twine check dist/*`, suivre **`docs/publishing_checklist.md`** ; ne pas versionner
+`dist/` ni `build/` (`.gitignore`).

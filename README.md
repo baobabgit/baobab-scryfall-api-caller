@@ -273,6 +273,15 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 - **Installation editable** : `pip install -e ".[dev]"` installe les dependances
   de developpement (tests, formatage, analyse statique).
 
+### Publication PyPI (mainteneurs)
+
+- Construction des artefacts (**sdist** / **wheel**), verification `twine check`, upload
+  et proposition de **tag Git** : [`docs/publishing_checklist.md`](docs/publishing_checklist.md).
+- Notes de release **1.0.0** : [`docs/release_notes_1.0.0.md`](docs/release_notes_1.0.0.md).
+- Ce depot **ne declenche pas** de publication automatique sur PyPI (pas de workflow
+  GitHub Actions dans le referentiel ; gate qualite locale : `CONTRIBUTING.md`,
+  `make quality`).
+
 ## Qualite et couverture de tests
 
 Un **guide contributeur** (ordre des verifications, tests integration, raccourcis) :

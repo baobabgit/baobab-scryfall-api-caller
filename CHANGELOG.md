@@ -25,6 +25,16 @@ documentation uniquement.
   d'integration reseau optionnels, validation des combinaisons avec
   `baobab-web-api-caller`) — voir `README.md` et `docs/V1_compliance.md`.
 
+### Documentation (preparation publication PyPI)
+
+- Checklist mainteneur : `docs/publishing_checklist.md` (build `sdist` / wheel,
+  `twine check`, smoke test d'installation, rappel tag Git — **sans** CI de publication
+  dans le depot).
+- Notes de release enrichies : `docs/release_notes_1.0.0.md` (synthese V1, architecture,
+  limitations, dependance `baobab-web-api-caller`).
+- README : lien vers la checklist et rappel absence de workflow GitHub Actions.
+- `.gitignore` : `dist/`, `build/` pour ne pas versionner les artefacts locaux.
+
 ## [0.2.0] - 2026-03-22
 
 Deuxieme release : perimetre **V1** du cahier des charges conserve ; extensions

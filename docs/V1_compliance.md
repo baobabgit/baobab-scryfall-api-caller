@@ -82,6 +82,8 @@ processus et desactive par defaut.
 
 Notes de release synthetiques : `docs/release_notes_1.0.0.md`. Comportement aligne sur
 **0.2.0** (bump sans changement fonctionnel) — voir `CHANGELOG.md` section `[1.0.0]`.
+Checklist publication PyPI (artefacts, `twine`, tag) : `docs/publishing_checklist.md`
+(processus **manuel** ; pas de CI de publication dans ce depot).
 
 **Risques residuels** : voir section *Ecarts et limitations connues* ; combinaison de
 versions avec le wheel `baobab-web-api-caller` a valider chez l'integrateur.
