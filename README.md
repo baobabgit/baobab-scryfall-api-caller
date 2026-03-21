@@ -1,5 +1,7 @@
 # baobab-scryfall-api-caller
 
+[![CI](https://github.com/baobabgit/baobab-scryfall-api-caller/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/baobabgit/baobab-scryfall-api-caller/actions/workflows/ci.yml)
+
 ## But de la librairie
 
 `baobab-scryfall-api-caller` est une librairie Python qui fournit une API orientee metier
@@ -161,14 +163,24 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 Les commandes suivantes sont attendues vertes avant fusion :
 
 - `python -m black src tests`
+- `python -m black --check src tests` (verification sans modification)
 - `python -m pylint src/baobab_scryfall_api_caller --fail-under=10`
 - `python -m mypy src/baobab_scryfall_api_caller`
 - `python -m flake8 src tests`
-- `python -m bandit -r src`
+- `python -m bandit -c pyproject.toml -r src tests`
 - `python -m pytest` (avec `pytest-cov` : seuil 90 % dans `pyproject.toml`)
 
 Les rapports de couverture (HTML, XML, JSON) sont generes sous `docs/tests/coverage/`
 (configure dans `pyproject.toml` ; fichiers generes listes dans `.gitignore`).
+
+### Integration continue (GitHub Actions)
+
+Le workflow **`.github/workflows/ci.yml`** execute sur chaque push et pull request vers
+`main` : installation editable (`pip install -e ".[dev]"`), puis **black**, **pylint**,
+**mypy**, **flake8**, **bandit** et **pytest** avec la meme configuration que localement.
+Le pipeline echoue si un outil qualite echoue, si les tests echouent ou si la couverture
+est inferieure au seuil (**90 %**, `cov-fail-under` / `[tool.coverage.report]`).
+Python **3.11** est utilise en CI (aligne sur `requires-python` et `target-version` black).
 
 ## Conformite cahier des charges (V1)
 

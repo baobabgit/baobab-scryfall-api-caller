@@ -7,7 +7,16 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+### Added
+- **CI GitHub Actions** : workflow `.github/workflows/ci.yml` (black, pylint, mypy,
+  flake8, bandit, pytest + couverture seuil 90 %) sur push / PR vers `main` ;
+  badge et section README sur l'integration continue.
+
 ### Changed
+- **Tests CI** : doubles `FakeBaobabStyleResponse` dans `test_scryfall_http_client`
+  (sans `import baobab_web_api_caller`) ; verification de la dependance runtime via
+  `importlib.metadata` dans `test_baobab_web_api_caller_import` pour eviter
+  l'echec de collection sur PyPI + Python 3.11.
 - Harmonisation **Cards V1** : validations texte unifiees via
   `ScryfallRequestValidators.require_non_empty_text` (suppression du helper prive du
   service) ; docstrings `CardsService` / `ScryfallApiCaller` ; README (tableau des

@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
-
-from baobab_web_api_caller.core.baobab_response import BaobabResponse
 
 from baobab_scryfall_api_caller.client.scryfall_http_client import ScryfallHttpClient
 from baobab_scryfall_api_caller.exceptions import (
@@ -93,6 +92,18 @@ class BaobabStyleTransportStub:
         return self.response
 
 
+@dataclass(frozen=True, slots=True)
+class FakeBaobabStyleResponse:
+    """Double minimal d'une reponse avec attribut `json_data` (sans importer baobab-web-api-caller).
+
+    Evite de charger le paquet PyPI complet en collection de tests (import chain / compat 3.11).
+    """
+
+    status_code: int
+    headers: dict[str, str]
+    json_data: dict[str, Any]
+
+
 class FakeBrokenJsonResponse:
     """Double de reponse avec json non dict."""
 
@@ -109,7 +120,7 @@ class TestScryfallHttpClient:
 
     def test_get_with_baobab_response_json_data(self) -> None:
         """Reponses BaobabResponse (json_data) doivent etre mappees en dict."""
-        response = BaobabResponse(
+        response = FakeBaobabStyleResponse(
             status_code=200,
             headers={},
             json_data={"id": "abc", "object": "card", "name": "Test"},
@@ -123,7 +134,7 @@ class TestScryfallHttpClient:
 
     def test_post_with_baobab_response_json_data(self) -> None:
         """POST avec reponse BaobabResponse doit extraire json_data."""
-        response = BaobabResponse(
+        response = FakeBaobabStyleResponse(
             status_code=200,
             headers={},
             json_data={"object": "list", "data": []},
