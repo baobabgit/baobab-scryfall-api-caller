@@ -1,3 +1,20 @@
+## 2026-03-21 01:00:00
+
+### Modifications
+- Ajout du domaine Catalogs : `Catalog`, `CatalogMapper`, `CatalogsApiClient`,
+  `CatalogsService` avec methode generique `get_catalog` et helpers V1
+  (noms de cartes, types de creature / terrain / carte, artistes).
+- Validation locale des cles catalogue (kebab-case) et mapping strict du
+  payload `object: catalog` (distinct des listes paginees).
+- Tests unitaires miroir et documentation (`README.md`, `CHANGELOG.md`).
+
+### Buts
+- Offrir un acces simple aux catalogues Scryfall sans dupliquer le transport HTTP.
+
+### Impact
+- Les applications peuvent consommer les jeux de valeurs de reference Scryfall
+  de maniere typee et testee.
+
 ## 2026-03-21 00:15:00
 
 ### Modifications
