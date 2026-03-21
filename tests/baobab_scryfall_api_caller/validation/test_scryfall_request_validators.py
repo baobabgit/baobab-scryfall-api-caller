@@ -87,3 +87,13 @@ class TestScryfallRequestValidators:
             assert True
         else:
             assert False, "Expected ScryfallValidationException"
+
+    def test_require_non_empty_text(self) -> None:
+        """Texte non vide apres strip."""
+        assert (
+            ScryfallRequestValidators.require_non_empty_text(value="  x  ", field_name="n") == "x"
+        )
+
+    def test_require_strict_positive_int(self) -> None:
+        """Entier strictement positif."""
+        assert ScryfallRequestValidators.require_strict_positive_int(value=1, field_name="k") == 1

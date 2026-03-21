@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
+from uuid import UUID
 
 from baobab_scryfall_api_caller.exceptions import (
     ScryfallNotFoundException,
@@ -10,6 +12,12 @@ from baobab_scryfall_api_caller.exceptions import (
     ScryfallRequestException,
     ScryfallResponseFormatException,
     ScryfallValidationException,
+)
+from baobab_scryfall_api_caller.models.cards.card_collection_constants import (
+    MAX_CARD_COLLECTION_IDENTIFIERS,
+)
+from baobab_scryfall_api_caller.models.cards.card_collection_identifier import (
+    CardCollectionIdentifier,
 )
 from baobab_scryfall_api_caller.services.cards import CardsService
 
@@ -24,6 +32,21 @@ class FakeWebApiCaller:
         """Simule la methode get du caller HTTP."""
         key = f"{route}|{params}"
         assert headers.get("Accept") == "application/json"
+        value = self.mapping.get(key)
+        if isinstance(value, Exception):
+            raise value
+        if value is None:
+            return {"object": "error", "status": 404, "details": "Not found"}
+        return value
+
+    def post(self, **kwargs: Any) -> Any:
+        """Simule la methode post du caller HTTP (signatures Baobab / tests)."""
+        route = kwargs.get("route") or kwargs.get("path")
+        body = kwargs.get("json") or kwargs.get("json_body") or kwargs.get("payload")
+        headers = kwargs.get("headers") or {}
+        assert headers.get("Accept") == "application/json"
+        assert isinstance(body, dict)
+        key = f"{route}|{json.dumps(body, sort_keys=True)}"
         value = self.mapping.get(key)
         if isinstance(value, Exception):
             raise value
@@ -406,3 +429,169 @@ class TestCardsService:
             assert True
         else:
             assert False, "Expected ScryfallValidationException"
+
+    def test_get_collection_nominal(self) -> None:
+        """Collection avec plusieurs identifiants mappe cartes et not_found."""
+        uid = "683a5707-cddb-494d-9b41-51b4584ded69"
+        canonical = str(UUID(uid))
+        request_body = {
+            "identifiers": [
+                {"id": canonical},
+                {"name": "Ancient Tomb"},
+                {"collector_number": "150", "set": "mrd"},
+            ],
+        }
+        key = f"/cards/collection|{json.dumps(request_body, sort_keys=True)}"
+        response = {
+            "object": "list",
+            "data": [
+                {"id": "c1", "name": "Card One"},
+                {"id": "c2", "name": "Ancient Tomb"},
+            ],
+            "not_found": [{"set": "mrd", "collector_number": "150"}],
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(mapping={key: response}),
+        )
+        result = service.get_collection(
+            identifiers=[
+                CardCollectionIdentifier(id=uid),
+                CardCollectionIdentifier(name="Ancient Tomb"),
+                CardCollectionIdentifier(set_code="mrd", collector_number="150"),
+            ],
+        )
+        assert len(result.cards) == 2
+        assert result.cards[0].name == "Card One"
+        assert result.not_found == ({"set": "mrd", "collector_number": "150"},)
+
+    def test_get_collection_payload_json_shape(self) -> None:
+        """Le corps POST doit contenir identifiers serialises correctement."""
+        uid = str(UUID("00000000-0000-4000-8000-000000000001"))
+        expected = {
+            "identifiers": [
+                {"id": uid},
+                {"mtgo_id": 12345},
+            ],
+        }
+        key = f"/cards/collection|{json.dumps(expected, sort_keys=True)}"
+        mapping: dict[str, Any] = {
+            key: {"object": "list", "data": [], "not_found": []},
+        }
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping=mapping))
+        service.get_collection(
+            identifiers=[
+                CardCollectionIdentifier(id="00000000-0000-4000-8000-000000000001"),
+                CardCollectionIdentifier(mtgo_id=12345),
+            ],
+        )
+
+    def test_get_collection_more_than_75_identifiers(self) -> None:
+        """Plus de 75 identifiants doit etre refuse localement."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        identifiers = [
+            CardCollectionIdentifier(name=f"Card{n}")
+            for n in range(MAX_CARD_COLLECTION_IDENTIFIERS + 1)
+        ]
+        try:
+            service.get_collection(identifiers=identifiers)
+        except ScryfallValidationException as exc:
+            assert (
+                "75" in str(exc).lower() or exc.params.get("max") == MAX_CARD_COLLECTION_IDENTIFIERS
+            )
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_collection_empty_identifiers_raises(self) -> None:
+        """Une liste vide doit lever."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_collection(identifiers=[])
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_collection_invalid_item_type(self) -> None:
+        """Un element non CardCollectionIdentifier doit lever."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_collection(identifiers=["not-an-identifier"])  # type: ignore[list-item]
+        except ScryfallValidationException as exc:
+            assert exc.params.get("index") == 0
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_collection_identifiers_string_rejected(self) -> None:
+        """Une chaine ne doit pas passer pour identifiers."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_collection(identifiers="bad")  # type: ignore[arg-type]
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_collection_identifiers_not_a_sequence(self) -> None:
+        """Un objet non sequence doit lever."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_collection(identifiers=object())  # type: ignore[arg-type]
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_collection_malformed_response(self) -> None:
+        """Une reponse liste avec data invalide doit lever."""
+        uid = str(UUID("00000000-0000-4000-8000-000000000001"))
+        body = {"identifiers": [{"id": uid}]}
+        key = f"/cards/collection|{json.dumps(body, sort_keys=True)}"
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={key: {"data": "not-a-list", "object": "list"}},
+            )
+        )
+        try:
+            service.get_collection(
+                identifiers=[
+                    CardCollectionIdentifier(id="00000000-0000-4000-8000-000000000001"),
+                ],
+            )
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"
+
+    def test_get_collection_http_error_simulated(self) -> None:
+        """Erreur HTTP simulee via payload error."""
+        uid = str(UUID("00000000-0000-4000-8000-000000000001"))
+        body = {"identifiers": [{"id": uid}]}
+        key = f"/cards/collection|{json.dumps(body, sort_keys=True)}"
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={key: {"object": "error", "status": 400, "details": "bad"}}
+            )
+        )
+        try:
+            service.get_collection(
+                identifiers=[CardCollectionIdentifier(id=uid)],
+            )
+        except ScryfallRequestException as exc:
+            assert exc.http_status == 400
+        else:
+            assert False, "Expected ScryfallRequestException"
+
+    def test_get_collection_transport_error(self) -> None:
+        """Erreur transport sur POST collection."""
+        uid = str(UUID("00000000-0000-4000-8000-000000000001"))
+        body = {"identifiers": [{"id": uid}]}
+        key = f"/cards/collection|{json.dumps(body, sort_keys=True)}"
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(mapping={key: RuntimeError("timeout")}),
+        )
+        try:
+            service.get_collection(identifiers=[CardCollectionIdentifier(id=uid)])
+        except ScryfallRequestException as exc:
+            assert "timeout" in str(exc)
+        else:
+            assert False, "Expected ScryfallRequestException"

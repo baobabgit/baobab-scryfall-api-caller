@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.autocomplete_mapper import AutocompleteMapper
+from baobab_scryfall_api_caller.mappers.card_collection_mapper import CardCollectionMapper
 from baobab_scryfall_api_caller.mappers.card_mapper import CardMapper
 from baobab_scryfall_api_caller.models.cards.autocomplete_result import AutocompleteResult
 from baobab_scryfall_api_caller.models.cards.card import Card
+from baobab_scryfall_api_caller.models.cards.card_collection_constants import (
+    MAX_CARD_COLLECTION_IDENTIFIERS,
+)
+from baobab_scryfall_api_caller.models.cards.card_collection_identifier import (
+    CardCollectionIdentifier,
+)
+from baobab_scryfall_api_caller.models.cards.card_collection_result import CardCollectionResult
 from baobab_scryfall_api_caller.models.common.list_response import ListResponse
 from baobab_scryfall_api_caller.pagination.scryfall_list_response_parser import (
     ScryfallListResponseParser,
@@ -31,12 +40,16 @@ class CardsService:
         card_mapper: CardMapper | None = None,
         list_parser: ScryfallListResponseParser | None = None,
         autocomplete_mapper: AutocompleteMapper | None = None,
+        collection_mapper: CardCollectionMapper | None = None,
     ) -> None:
         """Initialise le service Cards avec ses dependances."""
         self.api_client = api_client or CardsApiClient(web_api_caller=web_api_caller)
         self.card_mapper = card_mapper or CardMapper()
         self.list_parser = list_parser or ScryfallListResponseParser()
         self.autocomplete_mapper = autocomplete_mapper or AutocompleteMapper()
+        self.collection_mapper = collection_mapper or CardCollectionMapper(
+            card_mapper=self.card_mapper,
+        )
 
     def get_by_id(self, card_id: str) -> Card:
         """Recupere une carte par identifiant Scryfall."""
@@ -46,13 +59,16 @@ class CardsService:
 
     def get_by_mtgo_id(self, mtgo_id: int) -> Card:
         """Recupere une carte par identifiant MTGO."""
-        normalized_mtgo_id = self._require_positive_int(value=mtgo_id, field_name="mtgo_id")
+        normalized_mtgo_id = ScryfallRequestValidators.require_strict_positive_int(
+            value=mtgo_id,
+            field_name="mtgo_id",
+        )
         payload = self.api_client.get(route=f"/cards/mtgo/{normalized_mtgo_id}")
         return self.card_mapper.map_card(payload)
 
     def get_by_cardmarket_id(self, cardmarket_id: int) -> Card:
         """Recupere une carte par identifiant Cardmarket."""
-        normalized_cardmarket_id = self._require_positive_int(
+        normalized_cardmarket_id = ScryfallRequestValidators.require_strict_positive_int(
             value=cardmarket_id,
             field_name="cardmarket_id",
         )
@@ -139,6 +155,54 @@ class CardsService:
         payload = self.api_client.get(route="/cards/random", params=params)
         return self.card_mapper.map_card(payload)
 
+    def get_collection(
+        self,
+        *,
+        identifiers: Sequence[CardCollectionIdentifier],
+    ) -> CardCollectionResult:
+        """Recupere plusieurs cartes via POST /cards/collection (max 75 identifiants)."""
+        self._validate_collection_identifiers(identifiers=identifiers)
+        request_body = {
+            "identifiers": [item.to_api_dict() for item in identifiers],
+        }
+        payload = self.api_client.post(route="/cards/collection", payload=request_body)
+        return self.collection_mapper.map_collection_response(payload)
+
+    @staticmethod
+    def _validate_collection_identifiers(
+        *,
+        identifiers: Sequence[CardCollectionIdentifier],
+    ) -> None:
+        """Valide le type, la taille et les elements de la sequence d'identifiants."""
+        if isinstance(identifiers, (str, bytes)):
+            raise ScryfallValidationException(
+                "'identifiers' must be a sequence of CardCollectionIdentifier, not a string.",
+                params={"identifiers": identifiers},
+            )
+        if not isinstance(identifiers, Sequence):
+            raise ScryfallValidationException(
+                "'identifiers' must be a sequence of CardCollectionIdentifier.",
+                params={"identifiers": identifiers},
+            )
+        count = len(identifiers)
+        if count == 0:
+            raise ScryfallValidationException(
+                "'identifiers' cannot be empty.",
+                params={"identifiers": identifiers},
+            )
+        if count > MAX_CARD_COLLECTION_IDENTIFIERS:
+            raise ScryfallValidationException(
+                f"A maximum of {MAX_CARD_COLLECTION_IDENTIFIERS} identifiers is allowed "
+                "per collection request.",
+                params={"count": count, "max": MAX_CARD_COLLECTION_IDENTIFIERS},
+            )
+        for index, item in enumerate(identifiers):
+            if not isinstance(item, CardCollectionIdentifier):
+                raise ScryfallValidationException(
+                    f"Item at index {index} must be a CardCollectionIdentifier.",
+                    params={"index": index, "item": item},
+                )
+
     @staticmethod
     def _require_non_empty_str(*, card_id: str | None, field_name: str) -> str:
         if not isinstance(card_id, str):
@@ -153,17 +217,3 @@ class CardsService:
                 params={field_name: card_id},
             )
         return normalized
-
-    @staticmethod
-    def _require_positive_int(*, value: int, field_name: str) -> int:
-        if not isinstance(value, int):
-            raise ScryfallValidationException(
-                f"'{field_name}' must be an integer.",
-                params={field_name: value},
-            )
-        if value <= 0:
-            raise ScryfallValidationException(
-                f"'{field_name}' must be a positive integer.",
-                params={field_name: value},
-            )
-        return value

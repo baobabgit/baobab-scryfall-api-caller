@@ -129,7 +129,8 @@ Regles structurantes :
 ## Perimetre par domaine (implemente)
 
 - **cards** : `get_by_id`, `get_by_mtgo_id`, `get_by_cardmarket_id`,
-  `get_by_set_and_number`, `get_named` (exact ou fuzzy) ;
+  `get_by_set_and_number`, `get_named` (exact ou fuzzy), `search`, `autocomplete`,
+  `random`, `get_collection` ;
 - **sets** : liste paginee, `get_by_code`, `get_by_id` ;
 - **rulings** : `list_for_card_id` (pagination) ;
 - **catalogs** : `get_catalog` et helpers (noms, types, artistes, etc.) ;
@@ -137,8 +138,7 @@ Regles structurantes :
 - **pagination** : listes Scryfall via `ListResponse` / `ScryfallListResponseParser`.
 
 Les endpoints Scryfall **search**, **collection**, **autocomplete** et **random** sont
-prevus dans le cahier des charges V1 mais **ne sont pas** exposes par `CardsService`
-dans l'etat actuel du code.
+exposes par `CardsService` (voir section Cards ci-dessous).
 
 ## Etat actuel du projet
 
@@ -221,12 +221,15 @@ Disponible via `client.cards` ou `CardsService` :
 - `get_named(exact=...)` ou `get_named(fuzzy=...)` ;
 - `search(q=..., page=...)` : recherche DSL (`GET /cards/search`, `ListResponse[Card]`) ;
 - `autocomplete(q=...)` : suggestions de noms (`GET /cards/autocomplete`, `AutocompleteResult`) ;
-- `random(q=...)` : carte aleatoire (`GET /cards/random`, `q` optionnel).
+- `random(q=...)` : carte aleatoire (`GET /cards/random`, `q` optionnel) ;
+- `get_collection(identifiers=...)` : lot via `POST /cards/collection` (`CardCollectionResult` :
+  cartes trouvees + `not_found`).
 
 Exemple (facade) :
 
 ```python
 from baobab_scryfall_api_caller import ScryfallApiCaller
+from baobab_scryfall_api_caller.models.cards import CardCollectionIdentifier
 
 client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
@@ -240,6 +243,13 @@ search_page = client.cards.search(q="type:creature cmc=3")
 suggestions = client.cards.autocomplete(q="light")
 lucky = client.cards.random()
 lucky_filtered = client.cards.random(q="type:creature")
+
+batch = client.cards.get_collection(
+    identifiers=[
+        CardCollectionIdentifier(id="00000000-0000-4000-8000-000000000001"),
+        CardCollectionIdentifier(set_code="neo", collector_number="1"),
+    ]
+)
 ```
 
 Contraintes metier appliquees :
@@ -250,7 +260,10 @@ Contraintes metier appliquees :
   a Scryfall n'est pas reecrit ;
 - `page` pour `search` est optionnel (entier strictement positif) ;
 - les reponses liste de `search` utilisent `ScryfallListResponseParser` ;
-- aucune pagination reseau implicite n'est executee automatiquement au-dela de la page demandee.
+- aucune pagination reseau implicite n'est executee automatiquement au-dela de la page demandee ;
+- `get_collection` accepte une sequence non vide d'au plus `MAX_CARD_COLLECTION_IDENTIFIERS`
+  (75) `CardCollectionIdentifier` ; chaque identifiant suit un seul schema Scryfall
+  (id, mtgo_id, multiverse_id, oracle_id, illustration_id, name, name+set, set+collector_number).
 
 ## Sets (perimetre actuel)
 
