@@ -18,6 +18,10 @@ class ScryfallApiCaller:
     (`cards`, `sets`, `rulings`, `catalogs`, `bulk_data`) initialises avec le
     meme transport HTTP (`baobab-web-api-caller`).
 
+    Le domaine **Cards** (attribut ``cards``, type `CardsService`) expose l'integralite
+    du perimetre V1 documente (acces unitaires, named, search, autocomplete, random,
+    collection).
+
     Chaque service est injectable pour les tests ou les extensions ; par defaut,
     les instances sont construites avec le meme ``web_api_caller``.
     """

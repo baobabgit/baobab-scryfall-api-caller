@@ -26,9 +26,11 @@ et a l'etat du code a la finalisation V1.
 | **Catalogs** | generique + helpers | `get_catalog` + helpers |
 | **Bulk data** | liste, metadonnees, URL telechargement | `list_bulk_datasets`, `get_by_id`, `get_by_type` |
 
-### Ecarts residuels (Cards)
+### Domaine Cards (synthese V1)
 
-Aucun ecart majeur sur le perimetre Cards V1 documente dans le cahier des charges.
+Le perimetre V1 Cards du cahier des charges (acces unitaires, named, search,
+autocomplete, random, collection) est couvert par `CardsService` et expose via
+`ScryfallApiCaller.cards`, avec validations et mappers alignes sur le domaine.
 
 ## Facade publique
 
