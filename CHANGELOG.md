@@ -8,6 +8,10 @@ et le projet suit le versioning semantique.
 ## [Unreleased]
 
 ### Added
+- Domaine Cards : `CardsService.search` (`GET /cards/search`, `ListResponse[Card]`),
+  `CardsService.autocomplete` (`GET /cards/autocomplete`, modele `AutocompleteResult`),
+  `CardsService.random` (`GET /cards/random`) ; mapper `AutocompleteMapper` ;
+  validateur partage `ScryfallRequestValidators.require_scryfall_query_string`.
 - Document `docs/V1_compliance.md` : matrice de conformite au cahier des charges,
   ecarts residuels (Cards) et pistes post-V1.
 - Sections README : packaging / `py.typed`, commandes qualite, emplacement des
@@ -49,6 +53,6 @@ et le projet suit le versioning semantique.
   `CardsApiClient.post`.
 
 ### Fixed
-- Documentation : README et historique du changelog alignes sur les methodes
-  reellement exposees par `CardsService` (pas de mention trompeuse de `search`,
-  `collection`, `autocomplete`, `random` tant que non implementes).
+- Documentation : README et changelog alignes sur les methodes reellement exposees
+  par `CardsService` (y compris `search`, `autocomplete`, `random`) ; `collection`
+  reste non implemente dans le perimetre actuel.

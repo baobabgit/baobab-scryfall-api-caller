@@ -218,7 +218,10 @@ Disponible via `client.cards` ou `CardsService` :
 - `get_by_mtgo_id(mtgo_id)` ;
 - `get_by_cardmarket_id(cardmarket_id)` ;
 - `get_by_set_and_number(set_code, collector_number)` ;
-- `get_named(exact=...)` ou `get_named(fuzzy=...)`.
+- `get_named(exact=...)` ou `get_named(fuzzy=...)` ;
+- `search(q=..., page=...)` : recherche DSL (`GET /cards/search`, `ListResponse[Card]`) ;
+- `autocomplete(q=...)` : suggestions de noms (`GET /cards/autocomplete`, `AutocompleteResult`) ;
+- `random(q=...)` : carte aleatoire (`GET /cards/random`, `q` optionnel).
 
 Exemple (facade) :
 
@@ -232,12 +235,22 @@ card_by_mtgo = client.cards.get_by_mtgo_id(12345)
 card_by_cm = client.cards.get_by_cardmarket_id(67890)
 card_by_set = client.cards.get_by_set_and_number("lea", "233")
 card_named = client.cards.get_named(exact="Black Lotus")
+
+search_page = client.cards.search(q="type:creature cmc=3")
+suggestions = client.cards.autocomplete(q="light")
+lucky = client.cards.random()
+lucky_filtered = client.cards.random(q="type:creature")
 ```
 
 Contraintes metier appliquees :
 
 - `named` impose exactement un mode (`exact` ou `fuzzy`) ;
-- aucune pagination reseau implicite n'est executee automatiquement.
+- `q` pour `search`, `autocomplete` et `random` (si fourni) doit etre une chaine non vide
+  (apres suppression des espaces de tete et de queue pour le test de vide) ; le DSL transmis
+  a Scryfall n'est pas reecrit ;
+- `page` pour `search` est optionnel (entier strictement positif) ;
+- les reponses liste de `search` utilisent `ScryfallListResponseParser` ;
+- aucune pagination reseau implicite n'est executee automatiquement au-dela de la page demandee.
 
 ## Sets (perimetre actuel)
 

@@ -6,6 +6,7 @@ from typing import Any
 
 from baobab_scryfall_api_caller.exceptions import (
     ScryfallNotFoundException,
+    ScryfallPaginationException,
     ScryfallRequestException,
     ScryfallResponseFormatException,
     ScryfallValidationException,
@@ -205,3 +206,203 @@ class TestCardsService:
             assert True
         else:
             assert False, "Expected ScryfallResponseFormatException"
+
+    def test_search_nominal(self) -> None:
+        """La recherche renvoie une ListResponse de cartes mappees."""
+        list_payload = {
+            "object": "list",
+            "has_more": False,
+            "data": [{"id": "c1", "name": "Shivan Dragon"}],
+            "total_cards": 1,
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/search|{'q': 'type:creature'}": list_payload}
+            )
+        )
+        page = service.search(q="type:creature")
+        assert page.data[0].id == "c1"
+        assert page.metadata.has_more is False
+        assert page.next_page is None
+        assert page.metadata.total_cards == 1
+
+    def test_search_paginated(self) -> None:
+        """La recherche avec page transmet page et parse has_more / next_page."""
+        list_payload = {
+            "object": "list",
+            "has_more": True,
+            "next_page": "https://api.scryfall.com/cards/search?q=a&page=2",
+            "data": [{"id": "c1", "name": "A"}],
+            "total_cards": 100,
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/search|{'q': 'a', 'page': 2}": list_payload}
+            )
+        )
+        page = service.search(q="a", page=2)
+        assert page.has_more is True
+        assert page.next_page is not None
+        assert "page=2" in page.next_page
+
+    def test_search_empty_result(self) -> None:
+        """Une recherche sans resultat renvoie une liste vide valide."""
+        list_payload = {
+            "object": "list",
+            "has_more": False,
+            "data": [],
+            "total_cards": 0,
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/search|{'q': 'name:nope_xyz_123'}": list_payload}
+            )
+        )
+        page = service.search(q="name:nope_xyz_123")
+        assert page.data == []
+        assert page.metadata.total_cards == 0
+
+    def test_search_malformed_list_response(self) -> None:
+        """Une liste API invalide doit lever ScryfallResponseFormatException."""
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/search|{'q': 'x'}": {"object": "card", "id": "x"}}
+            )
+        )
+        try:
+            service.search(q="x")
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"
+
+    def test_search_pagination_inconsistent(self) -> None:
+        """has_more sans next_page doit lever ScryfallPaginationException."""
+        list_payload = {
+            "object": "list",
+            "has_more": True,
+            "data": [],
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(mapping={"/cards/search|{'q': 'x'}": list_payload})
+        )
+        try:
+            service.search(q="x")
+        except ScryfallPaginationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallPaginationException"
+
+    def test_search_malformed_card_in_data(self) -> None:
+        """Un element de data non mappable doit lever."""
+        list_payload = {
+            "object": "list",
+            "has_more": False,
+            "data": [{"id": "c1"}],
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(mapping={"/cards/search|{'q': 'x'}": list_payload})
+        )
+        try:
+            service.search(q="x")
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"
+
+    def test_search_validation_page_type(self) -> None:
+        """Un page non entier doit etre rejete localement."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.search(q="a", page="2")  # type: ignore[arg-type]
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_autocomplete_nominal(self) -> None:
+        """Autocomplete renvoie des suggestions typees."""
+        payload = {
+            "object": "catalog",
+            "total_values": 1,
+            "data": ["Lightning Bolt"],
+        }
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(mapping={"/cards/autocomplete|{'q': 'lig'}": payload})
+        )
+        result = service.autocomplete(q="lig")
+        assert result.suggestions == ("Lightning Bolt",)
+        assert result.total_values == 1
+
+    def test_autocomplete_validation_empty(self) -> None:
+        """Une query vide doit etre rejetee."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.autocomplete(q="   ")
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_autocomplete_invalid_payload(self) -> None:
+        """Une reponse autocomplete invalide doit lever."""
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/autocomplete|{'q': 'x'}": {"object": "list", "data": []}}
+            )
+        )
+        try:
+            service.autocomplete(q="x")
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"
+
+    def test_random_nominal(self) -> None:
+        """Random sans filtre renvoie une carte."""
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/random|None": {"id": "r1", "name": "Random"}}
+            )
+        )
+        card = service.random()
+        assert card.id == "r1"
+
+    def test_random_with_q(self) -> None:
+        """Random avec DSL q transmet le parametre."""
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={
+                    "/cards/random|{'q': 'type:creature'}": {
+                        "id": "r2",
+                        "name": "Grizzly Bears",
+                    }
+                }
+            )
+        )
+        card = service.random(q="type:creature")
+        assert card.name == "Grizzly Bears"
+
+    def test_random_transport_error(self) -> None:
+        """Une erreur transport sur random doit etre traduite."""
+        service = CardsService(
+            web_api_caller=FakeWebApiCaller(
+                mapping={"/cards/random|None": RuntimeError("network down")}
+            )
+        )
+        try:
+            service.random()
+        except ScryfallRequestException as exc:
+            assert "network down" in str(exc)
+        else:
+            assert False, "Expected ScryfallRequestException"
+
+    def test_random_q_validation(self) -> None:
+        """Random avec q vide doit lever en validation locale."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.random(q="  ")
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"

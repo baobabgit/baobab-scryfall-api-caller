@@ -1,3 +1,19 @@
+## 2026-03-21 12:00:00
+
+### Modifications
+- Domaine Cards : `CardsService.search` (`GET /cards/search`, `ListResponse[Card]`
+  via `ScryfallListResponseParser`), `CardsService.autocomplete` (`GET /cards/autocomplete`,
+  `AutocompleteResult` + `AutocompleteMapper`), `CardsService.random` (`GET /cards/random`).
+- Validateur partage `ScryfallRequestValidators.require_scryfall_query_string` pour
+  `q` (type, non vide) sans reecrire le DSL transmis a Scryfall.
+- Tests unitaires (service, mapper, validateurs) ; README, `CHANGELOG.md`.
+
+### Buts
+- Couvrir les endpoints Cards search / autocomplete / random sans `collection` dans cette branche.
+
+### Impact
+- `client.cards.search|autocomplete|random` disponibles avec le transport existant.
+
 ## 2026-03-21 06:00:00
 
 ### Modifications
