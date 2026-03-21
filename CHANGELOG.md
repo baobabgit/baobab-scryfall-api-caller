@@ -8,6 +8,8 @@ et le projet suit le versioning semantique.
 ## [Unreleased]
 
 ### Added
+- Domaine Catalogs : modele `Catalog`, `CatalogMapper`, `CatalogsApiClient`,
+  `CatalogsService` (`get_catalog` + helpers frequents).
 - Domaine Rulings : modele `Ruling`, `RulingMapper`, `RulingsApiClient`,
   `RulingsService` (`list_for_card_id` sur `GET /cards/{id}/rulings`).
 - `ScryfallRequestValidators` (pagination optionnelle, UUID) partage entre

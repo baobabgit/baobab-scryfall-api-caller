@@ -46,15 +46,16 @@ Regles structurantes :
 
 - structure de packages source/tests en place ;
 - configuration qualite centralisee dans `pyproject.toml` ;
-- domaines **Cards**, **Sets** et **Rulings** implementes sur le perimetre V1 decrit ci-dessous ;
+- domaines **Cards**, **Sets**, **Rulings** et **Catalogs** implementes sur le
+  perimetre V1 decrit ci-dessous ;
 - tests unitaires et couverture conformes aux exigences projet.
 
 ## Transport HTTP partage
 
 La logique HTTP generique (GET/POST JSON, detection d'erreurs, extraction de payload)
 est centralisee dans `ScryfallHttpClient`. Les clients de domaine (`CardsApiClient`,
-`SetsApiClient`, `RulingsApiClient`) s'appuient sur ce composant pour eviter la
-duplication tout en conservant une facade par domaine.
+`SetsApiClient`, `RulingsApiClient`, `CatalogsApiClient`) s'appuient sur ce
+composant pour eviter la duplication tout en conservant une facade par domaine.
 
 ## Couche d'exceptions et traduction d'erreurs
 
@@ -160,3 +161,29 @@ Contraintes metier appliquees :
 - l'identifiant carte doit etre un UUID Scryfall valide ;
 - le parametre `page` est optionnel et valide comme entier strictement positif ;
 - les reponses liste sont parsees via `ScryfallListResponseParser`.
+
+## Catalogs (perimetre actuel)
+
+Le domaine Catalogs est disponible via `CatalogsService` :
+
+- `get_catalog(catalog_key)` : acces generique (`GET /catalog/{catalog_key}`) ;
+- helpers : `get_card_names`, `get_creature_types`, `get_land_types`,
+  `get_card_types`, `get_artist_names` (deleguent au generique).
+
+Exemple d'usage :
+
+```python
+from baobab_scryfall_api_caller.services.catalogs import CatalogsService
+
+catalogs = CatalogsService(web_api_caller=web_api_caller)
+
+names = catalogs.get_card_names()
+custom = catalogs.get_catalog("keyword-abilities")
+```
+
+Contraintes metier appliquees :
+
+- la cle catalogue est normalisee en minuscules et validee (motif kebab-case,
+  longueur bornee) ;
+- le mapper exige `object: catalog`, `uri`, `total_values` entier positif ou
+  nul, et `data` comme liste de chaines (liste vide acceptee).
