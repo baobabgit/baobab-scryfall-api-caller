@@ -66,3 +66,8 @@ sans lien avec une regression unitaire (voir `README.md`).
 
 Pour une evolution notable : mettre a jour `CHANGELOG.md` et, si utile,
 `docs/dev_diary.md` et `README.md`.
+
+Pour une **release semver** : aligner `pyproject.toml` (`project.version`),
+`baobab_scryfall_api_caller.__version__`, le test `test_package_bootstrap`, puis
+`CHANGELOG` (section versionnee), `docs/V1_compliance.md` si la matrice change, et
+eventuellement `docs/release_notes_X.Y.Z.md`.

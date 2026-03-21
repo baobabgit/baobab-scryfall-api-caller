@@ -5,4 +5,4 @@ from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiT
 
 __all__ = ["__version__", "ScryfallApiCaller", "WebApiTransportProtocol"]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

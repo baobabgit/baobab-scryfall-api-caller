@@ -1,3 +1,18 @@
+## 2026-03-22 14:00:00
+
+### Modifications
+- **Release 0.2.0** : bump `project.version` / `__version__` ; `CHANGELOG` section
+  `[0.2.0]` ; README (version, etat du projet, limitations bulk) ; `docs/V1_compliance.md`
+  (bilan 0.2.0, tableau implementation) ; `docs/release_notes_0.2.0.md` ; test bootstrap
+  version.
+
+### Buts
+- Depôt pret pour tag `v0.2.0` / publication PyPI avec documentation alignee.
+
+### Impact
+- API publique des exports racine inchangee ; semver mineure reflete les extensions
+  compatibles livrees depuis 0.1.0.
+
 ## 2026-03-21 12:00:00
 
 ### Modifications
