@@ -6,6 +6,8 @@ import json
 from typing import Any
 from uuid import UUID
 
+import pytest
+
 from baobab_scryfall_api_caller.exceptions import (
     ScryfallNotFoundException,
     ScryfallPaginationException,
@@ -19,6 +21,7 @@ from baobab_scryfall_api_caller.models.cards.card_collection_constants import (
 from baobab_scryfall_api_caller.models.cards.card_collection_identifier import (
     CardCollectionIdentifier,
 )
+from baobab_scryfall_api_caller.models.cards.card_search_query import CardSearchQuery
 from baobab_scryfall_api_caller.services.cards import CardsService
 
 
@@ -342,6 +345,36 @@ class TestCardsService:
             assert True
         else:
             assert False, "Expected ScryfallValidationException"
+
+    def test_search_with_query_builder_equivalent_to_raw_q(self) -> None:
+        """query= produit le meme parametre q que le DSL brut correspondant."""
+        dsl = "t:Creature cmc=3"
+        list_payload = {
+            "object": "list",
+            "has_more": False,
+            "data": [{"id": "c1", "name": "X"}],
+        }
+        mapping = {
+            f"/cards/search|{{'q': '{dsl}'}}": list_payload,
+        }
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping=mapping))
+        built = CardSearchQuery().type_line("Creature").cmc(3)
+        page = service.search(query=built)
+        assert page.data[0].id == "c1"
+        assert service.search(q=dsl).data == page.data
+
+    def test_search_query_and_q_mutually_exclusive(self) -> None:
+        """Fournir q et query en meme temps doit lever."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        q = CardSearchQuery().type_line("Creature")
+        with pytest.raises(ScryfallValidationException):
+            service.search(q="type:creature", query=q)
+
+    def test_search_requires_q_or_query(self) -> None:
+        """Ni q ni query : erreur explicite."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        with pytest.raises(ScryfallValidationException):
+            service.search()
 
     def test_autocomplete_nominal(self) -> None:
         """Autocomplete renvoie des suggestions typees."""

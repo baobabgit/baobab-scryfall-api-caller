@@ -9,6 +9,9 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Recherche cartes** : `CardSearchQuery` (helpers `type_line`, `oracle`, `name_contains`,
+  `set_code`, `cmc`, `raw`) ; `CardsService.search` accepte `query=` en alternative a
+  `q=` (exactement l'un des deux). README et tests.
 - **Pagination** : ergonomie Python sur `ListResponse` (`__iter__`, `__len__`, `__bool__`,
   `items`, `is_empty`, `count`, raccourcis `total_cards` / `warnings`, `__repr__`) ;
   `ScryfallPage` aligne ; helpers explicites `iter_list_pages` et `iter_list_items`
