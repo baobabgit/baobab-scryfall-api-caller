@@ -14,6 +14,77 @@ La librairie encapsule la logique specifique a Scryfall :
 - gestion des erreurs metier ;
 - gestion des reponses paginees.
 
+## Installation
+
+- **Python** : 3.11 ou superieur (`requires-python` dans `pyproject.toml`).
+- **Dependance runtime** : `baobab-web-api-caller` (installee automatiquement avec le package).
+
+```bash
+pip install baobab-scryfall-api-caller
+```
+
+Pour contribuer ou lancer la suite de tests localement :
+
+```bash
+pip install -e ".[dev]"
+```
+
+## Point d'entree : `ScryfallApiCaller`
+
+Le point d'entree recommande est la classe **`ScryfallApiCaller`** : elle regroupe les
+services domaine derriere une facade stable, sans logique metier additionnelle.
+
+```python
+from baobab_scryfall_api_caller import ScryfallApiCaller
+
+# Instancier `web_api_caller` selon la documentation de baobab-web-api-caller
+# (base URL https://api.scryfall.com, configuration des en-tetes, etc.).
+# web_api_caller = ...
+
+client = ScryfallApiCaller(web_api_caller=web_api_caller)
+
+# Acces aux services V1
+card = client.cards.get_by_id("00000000-0000-0000-0000-000000000000")
+sets_page = client.sets.list_sets()
+ruling_page = client.rulings.list_for_card_id("00000000-0000-4000-8000-000000000001")
+catalog = client.catalogs.get_card_names()
+bulk = client.bulk_data.list_bulk_datasets()
+```
+
+### Services exposes
+
+| Attribut       | Type               | Role |
+|----------------|--------------------|------|
+| `client.cards` | `CardsService`     | Cartes |
+| `client.sets`  | `SetsService`      | Extensions |
+| `client.rulings` | `RulingsService` | Oracle rulings |
+| `client.catalogs` | `CatalogsService` | Catalogues de valeurs |
+| `client.bulk_data` | `BulkDataService` | Metadonnees bulk |
+
+La propriete en lecture seule `client.web_api_caller` retourne le transport injecte.
+
+### Injection des services (tests ou extensions)
+
+Chaque service peut etre remplace par une instance existante ; le transport
+`web_api_caller` reste obligatoire pour documenter le contrat et initialiser les
+services non remplaces.
+
+```python
+from baobab_scryfall_api_caller import ScryfallApiCaller
+from baobab_scryfall_api_caller.services.cards import CardsService
+
+custom_cards = CardsService(web_api_caller=web_api_caller)
+
+client = ScryfallApiCaller(
+    web_api_caller=web_api_caller,
+    cards_service=custom_cards,
+)
+assert client.cards is custom_cards
+```
+
+Import direct des services (sans facade) reste possible : `CardsService`,
+`SetsService`, etc., depuis les sous-packages `baobab_scryfall_api_caller.services.*`.
+
 ## Dependance a baobab-web-api-caller
 
 La couche de transport HTTP repose exclusivement sur `baobab-web-api-caller`.
@@ -46,8 +117,8 @@ Regles structurantes :
 
 - structure de packages source/tests en place ;
 - configuration qualite centralisee dans `pyproject.toml` ;
-- domaines **Cards**, **Sets**, **Rulings**, **Catalogs** et **Bulk Data**
-  implementes sur le perimetre V1 decrit ci-dessous ;
+- facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
+  **Catalogs** et **Bulk Data** sur le perimetre V1 decrit ci-dessous ;
 - tests unitaires et couverture conformes aux exigences projet.
 
 ## Transport HTTP partage
@@ -85,9 +156,9 @@ Le projet inclut un socle commun pour les reponses de type liste :
   les payloads de liste ;
 - `ScryfallPage[T]` pour manipuler une page locale sans iteration reseau automatique.
 
-## Cards core (perimetre actuel)
+## Cards (perimetre actuel)
 
-La premiere tranche du domaine Cards est disponible via `CardsService` :
+Disponible via `client.cards` ou `CardsService` :
 
 - `get_by_id(card_id)` ;
 - `get_by_mtgo_id(mtgo_id)` ;
@@ -95,18 +166,18 @@ La premiere tranche du domaine Cards est disponible via `CardsService` :
 - `get_by_set_and_number(set_code, collector_number)` ;
 - `get_named(exact=...)` ou `get_named(fuzzy=...)`.
 
-Exemple d'usage :
+Exemple (facade) :
 
 ```python
-from baobab_scryfall_api_caller.services.cards import CardsService
+from baobab_scryfall_api_caller import ScryfallApiCaller
 
-cards = CardsService(web_api_caller=web_api_caller)
+client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
-card_by_id = cards.get_by_id("00000000-0000-0000-0000-000000000000")
-card_by_mtgo = cards.get_by_mtgo_id(12345)
-card_by_cm = cards.get_by_cardmarket_id(67890)
-card_by_set = cards.get_by_set_and_number("lea", "233")
-card_named = cards.get_named(exact="Black Lotus")
+card_by_id = client.cards.get_by_id("00000000-0000-0000-0000-000000000000")
+card_by_mtgo = client.cards.get_by_mtgo_id(12345)
+card_by_cm = client.cards.get_by_cardmarket_id(67890)
+card_by_set = client.cards.get_by_set_and_number("lea", "233")
+card_named = client.cards.get_named(exact="Black Lotus")
 ```
 
 Contraintes metier appliquees :
@@ -116,22 +187,22 @@ Contraintes metier appliquees :
 
 ## Sets (perimetre actuel)
 
-Le domaine Sets est disponible via `SetsService` :
+Disponible via `client.sets` ou `SetsService` :
 
 - `list_sets(page=...)` : liste paginee (`ListResponse[Set]`) via `GET /sets` ;
 - `get_by_code(set_code)` : `GET /sets/{code}` avec validation locale du code ;
 - `get_by_id(set_id)` : `GET /sets/{id}` avec validation UUID.
 
-Exemple d'usage :
+Exemple :
 
 ```python
-from baobab_scryfall_api_caller.services.sets import SetsService
+from baobab_scryfall_api_caller import ScryfallApiCaller
 
-sets = SetsService(web_api_caller=web_api_caller)
+client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
-all_sets_page = sets.list_sets()
-neo = sets.get_by_code("neo")
-one = sets.get_by_id("2f601c3a-3c97-4b47-9bfc-6d37dc2c7f8f")
+all_sets_page = client.sets.list_sets()
+neo = client.sets.get_by_code("neo")
+one = client.sets.get_by_id("2f601c3a-3c97-4b47-9bfc-6d37dc2c7f8f")
 ```
 
 Contraintes metier appliquees :
@@ -142,19 +213,19 @@ Contraintes metier appliquees :
 
 ## Rulings (perimetre actuel)
 
-Le domaine Rulings est disponible via `RulingsService` :
+Disponible via `client.rulings` ou `RulingsService` :
 
 - `list_for_card_id(card_id, page=...)` : rulings Oracle pour une carte
   (`GET /cards/{id}/rulings`), reponse `ListResponse[Ruling]` paginee.
 
-Exemple d'usage :
+Exemple :
 
 ```python
-from baobab_scryfall_api_caller.services.rulings import RulingsService
+from baobab_scryfall_api_caller import ScryfallApiCaller
 
-rulings = RulingsService(web_api_caller=web_api_caller)
+client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
-page = rulings.list_for_card_id("00000000-0000-4000-8000-000000000001")
+page = client.rulings.list_for_card_id("00000000-0000-4000-8000-000000000001")
 ```
 
 Contraintes metier appliquees :
@@ -165,21 +236,21 @@ Contraintes metier appliquees :
 
 ## Catalogs (perimetre actuel)
 
-Le domaine Catalogs est disponible via `CatalogsService` :
+Disponible via `client.catalogs` ou `CatalogsService` :
 
 - `get_catalog(catalog_key)` : acces generique (`GET /catalog/{catalog_key}`) ;
 - helpers : `get_card_names`, `get_creature_types`, `get_land_types`,
   `get_card_types`, `get_artist_names` (deleguent au generique).
 
-Exemple d'usage :
+Exemple :
 
 ```python
-from baobab_scryfall_api_caller.services.catalogs import CatalogsService
+from baobab_scryfall_api_caller import ScryfallApiCaller
 
-catalogs = CatalogsService(web_api_caller=web_api_caller)
+client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
-names = catalogs.get_card_names()
-custom = catalogs.get_catalog("keyword-abilities")
+names = client.catalogs.get_card_names()
+custom = client.catalogs.get_catalog("keyword-abilities")
 ```
 
 Contraintes metier appliquees :
@@ -191,7 +262,7 @@ Contraintes metier appliquees :
 
 ## Bulk Data (perimetre actuel)
 
-Le domaine Bulk Data est disponible via `BulkDataService` :
+Disponible via `client.bulk_data` ou `BulkDataService` :
 
 - `list_bulk_datasets()` : liste des jeux (`GET /bulk-data`, `ListResponse[BulkData]`) ;
 - `get_by_id(bulk_data_id)` : metadonnees par UUID (`GET /bulk-data/{id}`) ;
@@ -201,16 +272,16 @@ Le domaine Bulk Data est disponible via `BulkDataService` :
 Aucun telechargement de fichier n'est effectue en V1 : seule l'URL
 (`download_uri`) et les metadonnees sont exposees.
 
-Exemple d'usage :
+Exemple :
 
 ```python
-from baobab_scryfall_api_caller.services.bulk_data import BulkDataService
+from baobab_scryfall_api_caller import ScryfallApiCaller
 
-bulk = BulkDataService(web_api_caller=web_api_caller)
+client = ScryfallApiCaller(web_api_caller=web_api_caller)
 
-all_datasets = bulk.list_bulk_datasets()
-one = bulk.get_by_type("oracle-cards")
-by_uuid = bulk.get_by_id("922288cb-4bef-45e1-bb30-0c2bd3d3534f")
+all_datasets = client.bulk_data.list_bulk_datasets()
+one = client.bulk_data.get_by_type("oracle-cards")
+by_uuid = client.bulk_data.get_by_id("922288cb-4bef-45e1-bb30-0c2bd3d3534f")
 ```
 
 Contraintes metier appliquees :

@@ -8,6 +8,11 @@ et le projet suit le versioning semantique.
 ## [Unreleased]
 
 ### Added
+- Facade publique `ScryfallApiCaller` (`client/scryfall_api_caller.py`) : point
+  d'entree unique exposant `cards`, `sets`, `rulings`, `catalogs`, `bulk_data`
+  avec le meme transport ; reexport depuis le package racine et `client`.
+- Documentation utilisateur enrichie (installation, tableau des services, exemples
+  par domaine via la facade).
 - Domaine Bulk Data : modele `BulkData`, `BulkDataMapper`, `BulkDataApiClient`,
   `BulkDataService` (liste, `get_by_id`, `get_by_type`, exposition `download_uri`
   sans telechargement).
