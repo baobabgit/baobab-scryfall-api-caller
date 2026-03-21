@@ -1,3 +1,19 @@
+## 2026-03-20 21:00:00
+
+### Modifications
+- Documentation **release V1 / 0.1.0** : README (objectif, exports `__version__` /
+  `__all__`, limitations, etat projet, `list_sets` signature) ; `CHANGELOG.md`
+  restructure avec section `[0.1.0]` ; `docs/V1_compliance.md` (CI, hors perimetre,
+  ecarts, post-V1) ; metadonnees `pyproject.toml` (keywords, classifiers) ;
+  test `test_packaging_public_api` (version vs metadata, exports racine).
+
+### Buts
+- Aligner la documentation et le packaging sur l'implementation reelle pour une
+  publication coherente.
+
+### Impact
+- Les consommateurs peuvent s'appuyer sur README + matrice V1 pour le perimetre 0.1.0.
+
 ## 2026-03-21 20:30:00
 
 ### Modifications

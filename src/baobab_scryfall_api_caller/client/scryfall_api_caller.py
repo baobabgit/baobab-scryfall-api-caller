@@ -39,7 +39,7 @@ class ScryfallApiCaller:
         """Initialise la facade avec le transport et les services optionnels.
 
         :param web_api_caller: implementation ``baobab-web-api-caller`` a utiliser
-            pour tous les appels HTTP (ex. `WebApiCaller` configure pour Scryfall).
+            pour tous les appels HTTP (ex. `BaobabServiceCaller` configure pour Scryfall).
         :param cards_service: service Cards ; sinon construit avec ``web_api_caller``.
         :param sets_service: service Sets ; sinon construit avec ``web_api_caller``.
         :param rulings_service: service Rulings ; sinon construit avec ``web_api_caller``.
