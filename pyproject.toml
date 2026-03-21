@@ -78,6 +78,9 @@ exclude_dirs = [".venv", "docs/tests/coverage"]
 targets = ["src", "tests"]
 skips = ["B101"]
 
+# Runs standards (pytest / pytest tests/) : couverture + seuil 90 % (pytest-cov).
+# Si vous ne lancez que tests/integration, les options ci-dessous s'appliquent encore
+# et le rapport global peut etre partiel : utiliser --no-cov ou `make test-integration`.
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "--strict-markers --strict-config --ignore=tests/integration --cov=baobab_scryfall_api_caller --cov-report=term-missing --cov-report=html:docs/tests/coverage/html --cov-report=xml:docs/tests/coverage/coverage.xml --cov-report=json:docs/tests/coverage/coverage.json --cov-fail-under=90"

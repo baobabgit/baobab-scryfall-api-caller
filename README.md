@@ -65,7 +65,8 @@ python -m pytest tests/integration --no-cov -m integration
   que les tests d'integration) ;
 - `make install-integration-deps` — alias de `install-dev` (nom explicite pour CI
   ou scripts) ;
-- `make test-integration` — execute `pytest tests/integration --no-cov -m integration`.
+- `make test` / `make test-unit` — `pytest` avec couverture et seuil 90 % (defaut) ;
+- `make test-integration` — `pytest tests/integration --no-cov -m integration`.
 
 Recettes CI detaillees (PyPI, wheel artefact, editable) : **`docs/ci_integration_tests.md`**.
 
@@ -242,9 +243,22 @@ Les commandes suivantes sont attendues vertes avant fusion :
 - `python -m mypy src/baobab_scryfall_api_caller`
 - `python -m flake8 src tests`
 - `python -m bandit -c pyproject.toml -r src tests`
-- `python -m pytest tests/` ou `python -m pytest` : **tests unitaires uniquement**
-  (dossier `tests/integration` ignore dans la configuration pytest par defaut) avec
-  `pytest-cov` et seuil 90 %.
+
+### Pytest : unites vs integration (couverture)
+
+- **Validation standard** (CI locale, pre-merge) : `python -m pytest` ou
+  `python -m pytest tests/` — **couverture active** (`pytest-cov`, seuil 90 % dans
+  `pyproject.toml`) ; `tests/integration` est **ignore** par defaut.
+- **Uniquement tests d'integration live** :
+  `python -m pytest tests/integration --no-cov -m integration` — **sans** couverture :
+  sans `--no-cov`, les `addopts` mesurent tout `src/` et appliquent le seuil global au
+  seul code execute par ces tests (souvent ~70 %), donc **echec** de `cov-fail-under`
+  sans lien avec la regression sur les unites.
+- **Confort** : `make test` / `make test-unit` (idem `pytest`) ; `make test-integration`
+  (meme ligne que l'integration ci-dessus).
+
+Le seuil **90 %** reste exige pour les **runs habituels** ; couper la couverture pour la
+sous-suite reseau **ne reduit pas** cette exigence sur le package dans le flux standard.
 
 Les rapports de couverture (HTML, XML, JSON) sont generes sous `docs/tests/coverage/`
 (configure dans `pyproject.toml` ; fichiers generes listes dans `.gitignore`).
@@ -268,14 +282,16 @@ qui utilisent la **meme chaine** que le README : `ServiceConfig` → `HttpTransp
   configuration au transport (pas de reconstruction par test).
 - **Contraintes** : acces Internet ; respect des [lignes directrices Scryfall](https://scryfall.com/docs/api)
   (pas de secrets ni credentials).
-- **Execution** :
-  - uniquement integration : `python -m pytest tests/integration --no-cov`
-    (le `--no-cov` evite d'appliquer le seuil de couverture 90 % aux seuls tests
-    reseau, qui feraient sinon chuter le rapport global).
-  - filtre sur le marqueur : `python -m pytest tests/integration -m integration --no-cov`
-- **Couverture** : les runs **unitaires** (`pytest` / `pytest tests/`) calculent la
-  couverture avec `pytest-cov`. Les tests d'integration peuvent etre mesures avec
-  `python -m pytest tests/integration --cov=baobab_scryfall_api_caller` si besoin.
+- **Execution** (obligatoire : `--no-cov` si vous ne lancez que ce dossier) :
+  - `python -m pytest tests/integration --no-cov -m integration`
+    (sans `--no-cov`, les options par defaut mesurent tout `src/` et appliquent le
+    seuil 90 % a un **sous-ensemble** de branches, ce qui fait echouer inutilement le
+    run ; voir tableau **Pytest : unites vs integration** ci-dessus).
+  - `make test-integration` : meme commande.
+- **Couverture** : le seuil **90 %** s'applique aux runs **unitaires** standards
+  (tableau ci-dessus). Une mesure ad hoc sur `tests/integration` avec coverage
+  doit eviter d'heriter betement des `addopts` globaux (sinon meme piege que sans
+  `--no-cov`).
 - **Donnees de test** : identifiants et requetes stables dans
   `tests/integration/scryfall_live_constants.py` ; politique HTTP (debit + headers) dans
   `tests/integration/live_transport_config.py`.
