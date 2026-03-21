@@ -45,3 +45,17 @@ class TestBaobabScryfallApiCallerException:
         """Sans contexte, le rendu textuel doit etre le message brut."""
         exception = BaobabScryfallApiCallerException("Erreur simple")
         assert str(exception) == "Erreur simple"
+
+    def test_str_includes_payload_response_detail_and_cause(self) -> None:
+        """Toutes les metadonnees optionnelles doivent apparaitre dans le rendu."""
+        cause = ValueError("upstream")
+        exception = BaobabScryfallApiCallerException(
+            "Echec",
+            payload={"a": 1},
+            response_detail={"raw": True},
+            cause=cause,
+        )
+        text = str(exception)
+        assert "payload=" in text
+        assert "response_detail=" in text
+        assert "cause=" in text

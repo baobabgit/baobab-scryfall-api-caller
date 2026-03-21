@@ -1,3 +1,21 @@
+## 2026-03-21 05:00:00
+
+### Modifications
+- Durcissement qualite V1 : tests supplementaires (`ScryfallHttpClient` POST /
+  erreurs, `CardsService` validations, `BaobabScryfallApiCallerException.__str__`,
+  `CardsApiClient.post`), couverture globale renforcee.
+- Documentation : `docs/V1_compliance.md`, sections README (packaging, qualite,
+  lien conformite), `CHANGELOG.md`.
+- Note historique : precision sous l'entree du 2026-03-20 19:40:00 (plan non
+  reflete dans le code).
+
+### Buts
+- Finaliser une V1 stable, homogene et verifiable avant integration continue elargie.
+
+### Impact
+- Moins d'angles morts sur le transport HTTP et les validations Cards ; trace
+  ecrite des ecarts au cahier des charges.
+
 ## 2026-03-21 04:00:00
 
 ### Modifications
@@ -106,6 +124,10 @@
 - Les futurs domaines pourront reutiliser `ScryfallHttpClient` de la meme facon.
 
 ## 2026-03-20 19:40:00
+
+**Note (2026-03-21)** : le corps ci-dessous decrivait un plan d'extension **non
+present dans l'arbre source** au moment de la V1 ; il est conserve pour l'historique
+du journal uniquement.
 
 ### Modifications
 - Ajout des modeles de requete Cards : `CardSearchQuery`, `NamedCardQuery`,

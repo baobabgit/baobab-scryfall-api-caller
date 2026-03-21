@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 *.py[cod]
+*.egg-info/
 
 # Test and coverage artifacts
 .pytest_cache/

@@ -120,6 +120,36 @@ class TestCardsService:
         else:
             assert False, "Expected ScryfallValidationException"
 
+    def test_get_named_requires_exact_or_fuzzy(self) -> None:
+        """Sans exact ni fuzzy, la validation locale doit echouer."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_named()
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_by_mtgo_id_must_be_positive(self) -> None:
+        """Un identifiant MTGO non strictement positif doit etre rejete."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_by_mtgo_id(0)
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
+    def test_get_named_exact_must_be_string(self) -> None:
+        """Le mode exact doit recevoir une chaine."""
+        service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))
+        try:
+            service.get_named(exact=123)  # type: ignore[arg-type]
+        except ScryfallValidationException:
+            assert True
+        else:
+            assert False, "Expected ScryfallValidationException"
+
     def test_local_validation_empty_string(self) -> None:
         """Une chaine vide doit etre rejetee en validation locale."""
         service = CardsService(web_api_caller=FakeWebApiCaller(mapping={}))

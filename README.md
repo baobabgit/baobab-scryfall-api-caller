@@ -126,6 +126,33 @@ dans l'etat actuel du code.
   **Catalogs** et **Bulk Data** conformement aux sections detaillees ci-dessus ;
 - tests unitaires et couverture conformes aux exigences projet.
 
+## Packaging et typage (PEP 621 / PEP 561)
+
+- **Distribution** : `pyproject.toml` (metadonnees, dependances, outils qualite).
+- **Marqueur de typage** : `py.typed` inclus dans le wheel via
+  `[tool.setuptools.package-data]` pour les consommateurs `mypy` / IDE.
+- **Installation editable** : `pip install -e ".[dev]"` installe les dependances
+  de developpement (tests, formatage, analyse statique).
+
+## Qualite et couverture de tests
+
+Les commandes suivantes sont attendues vertes avant fusion :
+
+- `python -m black src tests`
+- `python -m pylint src/baobab_scryfall_api_caller --fail-under=10`
+- `python -m mypy src/baobab_scryfall_api_caller`
+- `python -m flake8 src tests`
+- `python -m bandit -r src`
+- `python -m pytest` (avec `pytest-cov` : seuil 90 % dans `pyproject.toml`)
+
+Les rapports de couverture (HTML, XML, JSON) sont generes sous `docs/tests/coverage/`
+(configure dans `pyproject.toml` ; fichiers generes listes dans `.gitignore`).
+
+## Conformite cahier des charges (V1)
+
+Une **matrice de conformite** detaillee (exigences structurelles, ecarts Cards,
+recommandations post-V1) est maintenue dans `docs/V1_compliance.md`.
+
 ## Transport HTTP partage
 
 La logique HTTP generique (GET/POST JSON, detection d'erreurs, extraction de payload)

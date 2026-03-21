@@ -146,6 +146,66 @@ class TestScryfallHttpClient:
         else:
             assert False, "Expected ScryfallRequestException"
 
+    def test_post_http_error_payload(self) -> None:
+        """Un POST avec statut HTTP >= 400 doit lever une exception metier."""
+        web_api_caller = FakeWebApiCaller(
+            response=FakeResponse(
+                status_code=503,
+                payload={"object": "error", "details": "Service unavailable"},
+            )
+        )
+        client = ScryfallHttpClient(web_api_caller=web_api_caller)
+        try:
+            client.post(route="/cards/collection", payload={"identifiers": []})
+        except ScryfallRequestException as exception:
+            assert exception.http_status == 503
+        else:
+            assert False, "Expected ScryfallRequestException"
+
+    def test_post_object_error_without_http_status_field(self) -> None:
+        """Erreur Scryfall dans le corps avec statut HTTP nominal."""
+        web_api_caller = FakeWebApiCaller(
+            response=FakeResponse(
+                status_code=200,
+                payload={"object": "error", "status": 422, "details": "Invalid"},
+            )
+        )
+        client = ScryfallHttpClient(web_api_caller=web_api_caller)
+        try:
+            client.post(route="/cards/collection", payload={"identifiers": []})
+        except ScryfallRequestException as exception:
+            assert exception.http_status == 422
+        else:
+            assert False, "Expected ScryfallRequestException"
+
+    def test_post_error_without_details_uses_fallback_message(self) -> None:
+        """Message de reponse d'erreur sans chaine `details` explicite."""
+        web_api_caller = FakeWebApiCaller(
+            response=FakeResponse(
+                status_code=400,
+                payload={"object": "error"},
+            )
+        )
+        client = ScryfallHttpClient(web_api_caller=web_api_caller)
+        try:
+            client.post(route="/cards/collection", payload={"identifiers": []})
+        except ScryfallRequestException as exception:
+            assert exception.http_status == 400
+            assert "400" in exception.message or "failed" in exception.message.lower()
+        else:
+            assert False, "Expected ScryfallRequestException"
+
+    def test_post_malformed_response(self) -> None:
+        """Un POST dont la reponse n'est pas un dict exploitable doit echouer."""
+        web_api_caller = FakeWebApiCaller(response="not-json")
+        client = ScryfallHttpClient(web_api_caller=web_api_caller)
+        try:
+            client.post(route="/batch", payload={})
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"
+
     def test_get_json_method_non_dict_raises(self) -> None:
         """Une reponse json non dict doit lever une erreur de format."""
         web_api_caller = FakeWebApiCaller(response=FakeBrokenJsonResponse())

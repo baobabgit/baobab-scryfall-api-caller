@@ -7,12 +7,11 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
-### Fixed
-- Documentation : README et historique du changelog alignes sur les methodes
-  reellement exposees par `CardsService` (pas de mention trompeuse de `search`,
-  `collection`, `autocomplete`, `random` tant que non implementes).
-
 ### Added
+- Document `docs/V1_compliance.md` : matrice de conformite au cahier des charges,
+  ecarts residuels (Cards) et pistes post-V1.
+- Sections README : packaging / `py.typed`, commandes qualite, emplacement des
+  rapports de couverture, lien vers la conformite V1.
 - Facade publique `ScryfallApiCaller` (`client/scryfall_api_caller.py`) : point
   d'entree unique exposant `cards`, `sets`, `rulings`, `catalogs`, `bulk_data`
   avec le meme transport ; reexport depuis le package racine et `client`.
@@ -37,3 +36,13 @@ et le projet suit le versioning semantique.
 - Socle de modeles partages et pagination.
 - Premiere tranche du domaine Cards (`get_by_id`, `get_by_mtgo_id`,
   `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` exact/fuzzy).
+
+### Changed
+- Durcissement tests : scenarios HTTP POST supplementaires, validations
+  `CardsService`, rendu complet de l'exception racine, couverture de
+  `CardsApiClient.post`.
+
+### Fixed
+- Documentation : README et historique du changelog alignes sur les methodes
+  reellement exposees par `CardsService` (pas de mention trompeuse de `search`,
+  `collection`, `autocomplete`, `random` tant que non implementes).
