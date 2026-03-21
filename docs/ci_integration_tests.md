@@ -5,6 +5,9 @@ ci-dessous servent a reproduire un job propre en CI ou en machine ephemere.
 
 ## Principes
 
+- **Couverture** : les jobs qui ne lancent que `tests/integration` doivent utiliser
+  `--no-cov` (ou `make test-integration`). Sinon les `addopts` pytest appliquent le
+  seuil global 90 % a une mesure partielle et le job echoue sans interet.
 - **Aucun** `sys.path` ni `PYTHONPATH` artificiel : `baobab-web-api-caller` doit etre
   installe comme distribution Python (wheel ou editable).
 - Les tests **unitaires** (`pytest` / `pytest tests/`) exigent la presence du wheel

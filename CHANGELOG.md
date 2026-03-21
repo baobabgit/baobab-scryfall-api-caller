@@ -13,12 +13,13 @@ et le projet suit le versioning semantique.
   editable local, wheel fichier ; verification d'import ; ordre d'installation ;
   cibles `Makefile`), guide `docs/ci_integration_tests.md` (hypotheses CI sans
   workflow obligatoire).
-- **Makefile** : cibles `install-dev`, `install-integration-deps`, `test-integration`
-  (equivalents `pip` / `pytest` documentes dans le README).
+- **Makefile** : cibles `install-dev`, `install-integration-deps`, `test`,
+  `test-unit`, `test-integration` (equivalents documentes dans le README).
 - **Tests d'integration reseau** : dossier `tests/integration` (marqueur pytest
   `integration`, fixture `live_scryfall_client` via `baobab-web-api-caller` et
   `ScryfallApiCaller`), jeux de donnees dans `scryfall_live_constants.py` ;
-  execution : `python -m pytest tests/integration --no-cov`.
+  execution : `python -m pytest tests/integration --no-cov -m integration` ou
+  `make test-integration`.
 
 ### Removed
 
@@ -27,6 +28,10 @@ et le projet suit le versioning semantique.
 
 ### Changed
 
+- **pytest / couverture** : README, `docs/ci_integration_tests.md`, commentaire dans
+  `pyproject.toml` — executer uniquement `tests/integration` avec `--no-cov` (ou
+  `make test-integration`) pour eviter `cov-fail-under` sur une mesure partielle ;
+  seuil 90 % inchange pour `pytest` / `pytest tests/`.
 - **Tests d'integration live** : configuration centralisee dans
   `tests/integration/live_transport_config.py` — throttling ~**6 req/s**
   (`RateLimitPolicy`, intervalle minimal **1/6 s**), en-tetes par defaut

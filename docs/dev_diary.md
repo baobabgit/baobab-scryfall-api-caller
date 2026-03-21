@@ -1,3 +1,16 @@
+## 2026-03-22 18:00:00
+
+### Modifications
+- **Integration sans cov-fail-under** : README (tableau remplace par listes), commentaire
+  `pyproject.toml`, `make test` / `test-unit`, CHANGELOG, `docs/ci_integration_tests.md`.
+
+### Buts
+- Documenter pourquoi `pytest tests/integration` seul exige `--no-cov` ; garder le seuil
+  90 % sur les runs standards.
+
+### Impact
+- `make test-integration` reste la commande de reference pour le reseau.
+
 ## 2026-03-22 12:00:00
 
 ### Modifications
