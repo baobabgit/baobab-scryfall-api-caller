@@ -215,7 +215,8 @@ Regles structurantes :
 - **sets** : liste paginee, `get_by_code`, `get_by_id` ;
 - **rulings** : `list_for_card_id` (pagination) ;
 - **catalogs** : `get_catalog` et helpers (noms, types, artistes, etc.) ;
-- **bulk data** : liste des jeux, `get_by_id`, `get_by_type` (metadonnees et URL) ;
+- **bulk data** : liste des jeux, `get_by_id`, `get_by_type`, telechargement optionnel
+  via `BulkDatasetDownloader` ;
 - **pagination** : listes Scryfall via `ListResponse` / `ScryfallListResponseParser`.
 
 Les endpoints Scryfall **search**, **collection**, **autocomplete** et **random** sont
@@ -559,10 +560,24 @@ Disponible via `client.bulk_data` ou `BulkDataService` :
 - `get_by_type(bulk_type)` : metadonnees par type d'URL kebab-case
   (`GET /bulk-data/{type}`, ex. ``oracle-cards``).
 
-Aucun telechargement de fichier n'est effectue en V1 : seule l'URL
-(`download_uri`) et les metadonnees sont exposees.
+**Telechargement de fichier (optionnel)** : la librairie ne declenche aucun GET binaire
+tant que vous n'injectez pas un `BulkDatasetDownloader`
+(`baobab_scryfall_api_caller.services.bulk_data`).
+Le telechargement repose sur `BulkFileDownloader` de `baobab-web-api-caller`
+(meme dependance que le transport JSON) : streaming vers disque,
+fichier temporaire ``.part`` puis renommage, pas d'HTTP direct dans ce depot.
 
-Exemple :
+- Construire un downloader : `BulkDatasetDownloader(session_factory=RequestsSessionFactory())`
+  (optionnellement `default_headers=` alignes sur votre `ServiceConfig` pour
+  `User-Agent` / politique Scryfall).
+- Passer ``bulk_dataset_downloader=...`` a ``ScryfallApiCaller`` ou ``BulkDataService``.
+- Appeler ``download_bulk_dataset(bulk_data=..., destination_path=Path("/chemin/fichier.json"))``,
+  ``download_bulk_dataset_by_type("oracle-cards", destination_path=...)`` ou
+  ``download_bulk_dataset_by_id(...)``.
+- ``overwrite=False`` (defaut) : refuser d'ecraser un fichier deja present ; passer
+  ``overwrite=True`` pour remplacer explicitement.
+
+Exemple (metadonnees seules) :
 
 ```python
 from baobab_scryfall_api_caller import ScryfallApiCaller
@@ -574,9 +589,34 @@ one = client.bulk_data.get_by_type("oracle-cards")
 by_uuid = client.bulk_data.get_by_id("922288cb-4bef-45e1-bb30-0c2bd3d3534f")
 ```
 
+Exemple (telechargement, avec injection) :
+
+```python
+from pathlib import Path
+
+from baobab_web_api_caller.transport.requests_session_factory import RequestsSessionFactory
+
+from baobab_scryfall_api_caller import ScryfallApiCaller
+from baobab_scryfall_api_caller.services.bulk_data import BulkDatasetDownloader
+
+downloader = BulkDatasetDownloader(session_factory=RequestsSessionFactory())
+client = ScryfallApiCaller(web_api_caller=web_api_caller, bulk_dataset_downloader=downloader)
+
+meta = client.bulk_data.get_by_type("oracle-cards")
+result = client.bulk_data.download_bulk_dataset(
+    bulk_data=meta,
+    destination_path=Path("./oracle-cards.json"),
+    overwrite=False,
+)
+# result.path : fichier ecrit ; result.bulk_data : metadonnees
+```
+
 Contraintes metier appliquees :
 
 - validation UUID pour `get_by_id`, motif kebab-case pour `get_by_type` ;
 - coherence : `download_uri` en URL absolue HTTP(S), `size` strictement positif
   (sinon `ScryfallBulkDataException`) ;
-- payloads `object: bulk_data` attendus pour chaque jeu.
+- payloads `object: bulk_data` attendus pour chaque jeu ;
+- destination de telechargement : chemin **fichier** (pas un repertoire seul) ;
+  erreurs HTTP / transport reseau : `ScryfallRequestException` ou `ScryfallBulkDataException`
+  selon le cas (voir docstrings).

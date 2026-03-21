@@ -9,6 +9,9 @@ from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCac
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.services.bulk_data.bulk_data_service import BulkDataService
+from baobab_scryfall_api_caller.services.bulk_data.bulk_dataset_downloader import (
+    BulkDatasetDownloader,
+)
 from baobab_scryfall_api_caller.services.cards.cards_service import CardsService
 from baobab_scryfall_api_caller.services.catalogs.catalogs_service import CatalogsService
 from baobab_scryfall_api_caller.services.rulings.rulings_service import RulingsService
@@ -41,6 +44,7 @@ class ScryfallApiCaller:
         rulings_service: RulingsService | None = None,
         catalogs_service: CatalogsService | None = None,
         bulk_data_service: BulkDataService | None = None,
+        bulk_dataset_downloader: BulkDatasetDownloader | None = None,
     ) -> None:
         """Initialise la facade avec le transport et les services optionnels.
 
@@ -55,6 +59,8 @@ class ScryfallApiCaller:
         :param rulings_service: service Rulings ; sinon construit avec ``web_api_caller``.
         :param catalogs_service: service Catalogs ; sinon construit avec ``web_api_caller``.
         :param bulk_data_service: service Bulk Data ; sinon construit avec ``web_api_caller``.
+        :param bulk_dataset_downloader: telechargeur optionnel pour les fichiers bulk
+            (injecte dans le service Bulk Data par defaut).
 
         :raises ScryfallValidationException: si ``web_api_caller`` est absent.
         """
@@ -88,6 +94,7 @@ class ScryfallApiCaller:
             web_api_caller=web_api_caller,
             response_cache=response_cache,
             cacheable_get_predicate=cacheable_get_predicate,
+            bulk_dataset_downloader=bulk_dataset_downloader,
         )
 
     @property

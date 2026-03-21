@@ -9,6 +9,11 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Bulk Data : telechargement assiste** : `BulkDatasetDownloader` (delegation a
+  `BulkFileDownloader` de `baobab-web-api-caller`), methodes
+  `download_bulk_dataset` / `download_bulk_dataset_by_type` / `download_bulk_dataset_by_id`
+  sur `BulkDataService`, injection via `ScryfallApiCaller(bulk_dataset_downloader=...)` ;
+  modele `BulkDownloadResult` ; strategie `overwrite` explicite ; tests et README.
 - **Cache optionnel** : protocole `JsonResponseCache`, implementation `InMemoryJsonCache`
   (memoire processus uniquement), integration dans `ScryfallHttpClient` et facade
   `ScryfallApiCaller` (`response_cache`, `cacheable_get_predicate`) ; predicat par defaut

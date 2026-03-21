@@ -9,8 +9,12 @@ from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.services.bulk_data.bulk_data_service import BulkDataService
 from baobab_scryfall_api_caller.services.cards.cards_service import CardsService
 from baobab_scryfall_api_caller.services.catalogs.catalogs_service import CatalogsService
+from baobab_scryfall_api_caller.services.bulk_data.bulk_dataset_downloader import (
+    BulkDatasetDownloader,
+)
 from baobab_scryfall_api_caller.services.rulings.rulings_service import RulingsService
 from baobab_scryfall_api_caller.services.sets.sets_service import SetsService
+from baobab_web_api_caller.transport.requests_session_factory import RequestsSessionFactory
 
 
 class TestScryfallApiCaller:
@@ -82,3 +86,10 @@ class TestScryfallApiCaller:
         assert api.catalogs.api_client._http.json_response_cache is cache
         assert api.sets.api_client._http.json_response_cache is cache
         assert api.bulk_data.api_client._http.json_response_cache is cache
+
+    def test_bulk_dataset_downloader_passed_to_bulk_data_service(self) -> None:
+        """Le downloader optionnel est injecte dans le service Bulk Data par defaut."""
+        transport = object()
+        bd = BulkDatasetDownloader(session_factory=RequestsSessionFactory())
+        api = ScryfallApiCaller(web_api_caller=transport, bulk_dataset_downloader=bd)
+        assert api.bulk_data._bulk_dataset_downloader is bd
