@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary" }
 authors = [{ name = "Baobab Team" }]
-dependencies = ["baobab-web-api-caller>=0.1.0,<1.0.0"]
+# Transport HTTP exclusif : API stable attendue en 1.x (semver baobab-web-api-caller).
+dependencies = ["baobab-web-api-caller>=0.1.0,<2.0.0"]
 
 [project.optional-dependencies]
 dev = [

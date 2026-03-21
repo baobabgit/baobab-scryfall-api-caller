@@ -4,22 +4,39 @@ from __future__ import annotations
 
 from typing import Any
 
+from baobab_scryfall_api_caller.client.baobab_query_params_normalizer import (
+    BaobabQueryParamsNormalizer,
+)
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallResponseFormatException
 from baobab_scryfall_api_caller.mappers.error_translation_context import ErrorTranslationContext
 from baobab_scryfall_api_caller.mappers.scryfall_error_translator import ScryfallErrorTranslator
 
 
 class ScryfallHttpClient:
-    """Execute GET/POST JSON et normalise les erreurs via `ScryfallErrorTranslator`."""
+    """Execute GET/POST JSON et normalise les erreurs via `ScryfallErrorTranslator`.
+
+    Le transport injecte est typiquement une instance de
+    :class:`baobab_web_api_caller.service.baobab_service_caller.BaobabServiceCaller`
+    (raccourcis ``get`` / ``post`` avec ``path``, ``query_params``, ``json_body``)
+    ou tout double de test exposant les memes conventions.
+
+    Les signatures historiques ``route`` / ``params`` / ``json`` restent essayees en
+    premier pour la compatibilite avec les mocks existants.
+    """
 
     def __init__(
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         error_translator: ScryfallErrorTranslator | None = None,
     ) -> None:
-        """Initialise le client HTTP partage."""
-        self.web_api_caller = web_api_caller
+        """Initialise le client HTTP partage.
+
+        :param web_api_caller: couche de transport ``baobab-web-api-caller`` (ex.
+            `BaobabServiceCaller` compose avec `HttpTransportCaller`).
+        """
+        self.web_api_caller: WebApiTransportProtocol = web_api_caller
         self.error_translator = error_translator or ScryfallErrorTranslator()
 
     def get(self, *, route: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -96,10 +113,13 @@ class ScryfallHttpClient:
 
     def _perform_get(self, *, route: str, params: dict[str, Any] | None) -> Any:
         headers = {"Accept": "application/json"}
-        candidate_payloads = [
+        baobab_query = BaobabQueryParamsNormalizer.normalize(params)
+        query_params = {} if baobab_query is None else baobab_query
+        candidate_payloads: list[dict[str, Any]] = [
             {"route": route, "params": params, "headers": headers},
             {"path": route, "params": params, "headers": headers},
             {"url": route, "params": params, "headers": headers},
+            {"path": route, "query_params": query_params, "headers": headers},
         ]
         for payload in candidate_payloads:
             try:
@@ -116,11 +136,19 @@ class ScryfallHttpClient:
         params: dict[str, Any] | None,
     ) -> Any:
         headers = {"Accept": "application/json"}
-        candidate_payloads = [
+        baobab_query = BaobabQueryParamsNormalizer.normalize(params)
+        query_params = {} if baobab_query is None else baobab_query
+        candidate_payloads: list[dict[str, Any]] = [
             {"route": route, "params": params, "json": payload, "headers": headers},
             {"route": route, "params": params, "payload": payload, "headers": headers},
             {"path": route, "params": params, "json": payload, "headers": headers},
             {"url": route, "params": params, "json": payload, "headers": headers},
+            {
+                "path": route,
+                "query_params": query_params,
+                "json_body": payload,
+                "headers": headers,
+            },
         ]
         for request_payload in candidate_payloads:
             try:
@@ -133,6 +161,10 @@ class ScryfallHttpClient:
     def _extract_payload(raw_response: Any) -> dict[str, Any]:
         if isinstance(raw_response, dict):
             return raw_response
+
+        json_data = getattr(raw_response, "json_data", None)
+        if isinstance(json_data, dict):
+            return json_data
 
         if hasattr(raw_response, "json") and callable(raw_response.json):
             payload = raw_response.json()

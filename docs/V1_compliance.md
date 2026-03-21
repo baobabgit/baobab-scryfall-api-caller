@@ -7,7 +7,7 @@ et a l'etat du code a la finalisation V1.
 
 | Exigence | Statut | Commentaire |
 |----------|--------|-------------|
-| Transport via `baobab-web-api-caller` uniquement | OK | `ScryfallHttpClient`, clients domaine |
+| Transport via `baobab-web-api-caller` uniquement | OK | Dependance PyPI bornee ; `ScryfallHttpClient` + `BaobabQueryParamsNormalizer` ; injection `WebApiTransportProtocol` |
 | GET et POST exposes au niveau transport | OK | `ScryfallHttpClient`, `CardsApiClient` |
 | Classes, une classe par fichier | OK | Respecte la convention projet |
 | Tests miroir, classes `Test...` | OK | `tests/` aligne sur `src/` |

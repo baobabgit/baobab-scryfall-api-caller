@@ -38,6 +38,12 @@ et le projet suit le versioning semantique.
   `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` exact/fuzzy).
 
 ### Changed
+- Integration `baobab-web-api-caller` : contrainte de version `>=0.1.0,<2.0.0` ;
+  `ScryfallHttpClient` tente les signatures `BaobabServiceCaller` (`path`,
+  `query_params`, `json_body`) et lit `BaobabResponse.json_data` ; typage
+  `WebApiTransportProtocol` sur la facade et les services ; normaliseur
+  `BaobabQueryParamsNormalizer` ; README avec exemple `BaobabServiceCaller` +
+  `HttpTransportCaller`.
 - Durcissement tests : scenarios HTTP POST supplementaires, validations
   `CardsService`, rendu complet de l'exception racine, couverture de
   `CardsApiClient.post`.

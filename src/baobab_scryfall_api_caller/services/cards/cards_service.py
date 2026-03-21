@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.card_mapper import CardMapper
 from baobab_scryfall_api_caller.models.cards.card import Card
@@ -16,7 +15,7 @@ class CardsService:
     def __init__(
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         api_client: CardsApiClient | None = None,
         card_mapper: CardMapper | None = None,
     ) -> None:

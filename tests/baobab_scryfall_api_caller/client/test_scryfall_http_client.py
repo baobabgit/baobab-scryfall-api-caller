@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from baobab_web_api_caller.core.baobab_response import BaobabResponse
+
 from baobab_scryfall_api_caller.client.scryfall_http_client import ScryfallHttpClient
 from baobab_scryfall_api_caller.exceptions import (
     ScryfallNotFoundException,
@@ -54,6 +56,43 @@ class FakeResponse:
         return self._payload
 
 
+class BaobabStyleTransportStub:
+    """Simule BaobabServiceCaller (path, query_params, json_body) sans reseau."""
+
+    def __init__(self, *, response: Any) -> None:
+        self.response = response
+        self.last_get: dict[str, Any] | None = None
+        self.last_post: dict[str, Any] | None = None
+
+    def get(
+        self,
+        path: str,
+        *,
+        query_params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> Any:
+        """Signature alignee sur BaobabServiceCaller.get."""
+        self.last_get = {"path": path, "query_params": query_params, "headers": headers}
+        return self.response
+
+    def post(
+        self,
+        path: str,
+        *,
+        query_params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        json_body: object | None = None,
+    ) -> Any:
+        """Signature alignee sur BaobabServiceCaller.post."""
+        self.last_post = {
+            "path": path,
+            "query_params": query_params,
+            "headers": headers,
+            "json_body": json_body,
+        }
+        return self.response
+
+
 class FakeBrokenJsonResponse:
     """Double de reponse avec json non dict."""
 
@@ -67,6 +106,34 @@ class FakeBrokenJsonResponse:
 
 class TestScryfallHttpClient:
     """Valide les scenarios d'appel et de traduction d'erreurs."""
+
+    def test_get_with_baobab_response_json_data(self) -> None:
+        """Reponses BaobabResponse (json_data) doivent etre mappees en dict."""
+        response = BaobabResponse(
+            status_code=200,
+            headers={},
+            json_data={"id": "abc", "object": "card", "name": "Test"},
+        )
+        stub = BaobabStyleTransportStub(response=response)
+        client = ScryfallHttpClient(web_api_caller=stub)
+        payload = client.get(route="/cards/abc")
+        assert payload["id"] == "abc"
+        assert stub.last_get is not None
+        assert stub.last_get["path"] == "/cards/abc"
+
+    def test_post_with_baobab_response_json_data(self) -> None:
+        """POST avec reponse BaobabResponse doit extraire json_data."""
+        response = BaobabResponse(
+            status_code=200,
+            headers={},
+            json_data={"object": "list", "data": []},
+        )
+        stub = BaobabStyleTransportStub(response=response)
+        client = ScryfallHttpClient(web_api_caller=stub)
+        payload = client.post(route="/cards/collection", payload={"identifiers": []})
+        assert payload["object"] == "list"
+        assert stub.last_post is not None
+        assert stub.last_post["json_body"] == {"identifiers": []}
 
     def test_get_nominal_dict_payload(self) -> None:
         """Le client doit retourner un payload dict nominal."""

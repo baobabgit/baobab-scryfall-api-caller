@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from baobab_scryfall_api_caller.client.scryfall_http_client import ScryfallHttpClient
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.mappers.scryfall_error_translator import ScryfallErrorTranslator
 
 
@@ -14,7 +15,7 @@ class BulkDataApiClient:
     def __init__(
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         error_translator: ScryfallErrorTranslator | None = None,
     ) -> None:
         """Initialise le client technique Bulk Data."""

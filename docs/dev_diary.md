@@ -1,3 +1,18 @@
+## 2026-03-21 06:00:00
+
+### Modifications
+- Integration officielle de `baobab-web-api-caller` : protocole `WebApiTransportProtocol`,
+  adaptation `ScryfallHttpClient` vers `path` / `query_params` / `json_body`,
+  extraction `json_data` depuis `BaobabResponse`, `BaobabQueryParamsNormalizer`.
+- Dependance PyPI bornee `<2.0.0` ; tests packaging (tomllib) et import du package
+  transport ; README avec enchainement `BaobabServiceCaller` + `ScryfallApiCaller`.
+
+### Buts
+- Aligner le code sur l'API reelle de la librairie de transport et securiser l'injection.
+
+### Impact
+- Les consommateurs peuvent brancher le transport PyPI sans couche HTTP parallele.
+
 ## 2026-03-21 05:00:00
 
 ### Modifications

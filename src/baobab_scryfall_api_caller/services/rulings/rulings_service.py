@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-
+from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.mappers.ruling_mapper import RulingMapper
 from baobab_scryfall_api_caller.models.common.list_response import ListResponse
 from baobab_scryfall_api_caller.models.rulings.ruling import Ruling
@@ -28,7 +27,7 @@ class RulingsService:
     def __init__(
         self,
         *,
-        web_api_caller: Any,
+        web_api_caller: WebApiTransportProtocol,
         api_client: RulingsApiClient | None = None,
         ruling_mapper: RulingMapper | None = None,
         list_parser: ScryfallListResponseParser | None = None,
