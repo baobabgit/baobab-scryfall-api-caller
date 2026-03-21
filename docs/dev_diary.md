@@ -1,3 +1,16 @@
+## 2026-03-23 12:00:00
+
+### Modifications
+- **Cache GET optionnel** : package `cache` (`JsonResponseCache`, `InMemoryJsonCache`,
+  `default_cacheable_get`, `make_get_cache_key`) ; `ScryfallHttpClient` + services +
+  `ScryfallApiCaller` ; tests ; README / CHANGELOG.
+
+### Buts
+- Socle simple, injectable, sans persistance ni reseau implicite ; desactive par defaut.
+
+### Impact
+- Meme API si `response_cache` absent ; consommateurs avances peuvent reduire les allers-retours.
+
 ## 2026-03-22 23:45:00
 
 ### Modifications

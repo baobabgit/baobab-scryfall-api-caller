@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import baobab_scryfall_api_caller
+from baobab_scryfall_api_caller.cache import InMemoryJsonCache
 from baobab_scryfall_api_caller.client.scryfall_api_caller import ScryfallApiCaller
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.services.bulk_data.bulk_data_service import BulkDataService
@@ -72,3 +73,12 @@ class TestScryfallApiCaller:
         from baobab_scryfall_api_caller.client import ScryfallApiCaller as FromClient
 
         assert FromClient is ScryfallApiCaller
+
+    def test_response_cache_shared_by_default_services(self) -> None:
+        """Une instance de cache passee a la facade est partagee par les services par defaut."""
+        transport = object()
+        cache = InMemoryJsonCache()
+        api = ScryfallApiCaller(web_api_caller=transport, response_cache=cache)
+        assert api.catalogs.api_client._http.json_response_cache is cache
+        assert api.sets.api_client._http.json_response_cache is cache
+        assert api.bulk_data.api_client._http.json_response_cache is cache

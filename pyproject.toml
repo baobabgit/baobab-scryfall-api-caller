@@ -54,7 +54,7 @@ py-version = "3.11"
 jobs = 0
 
 [tool.pylint.messages_control]
-disable = ["missing-module-docstring", "too-few-public-methods"]
+disable = ["missing-module-docstring", "too-few-public-methods", "duplicate-code"]
 
 [tool.pylint.format]
 max-line-length = 100

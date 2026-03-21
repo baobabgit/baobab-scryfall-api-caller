@@ -151,6 +151,34 @@ assert client.cards is custom_cards
 Import direct des services (sans facade) reste possible : `CardsService`,
 `SetsService`, etc., depuis les sous-packages `baobab_scryfall_api_caller.services.*`.
 
+## Cache optionnel (reponses GET)
+
+**Desactive par defaut.** La librairie peut memoriser en **memoire processus** les
+payloads JSON de certains **GET** reussis, pour reduire les appels reseau repetitifs
+(catalogues, sets, bulk data, rulings par carte, carte par UUID). Aucune persistance
+disque ni cache distribue : uniquement un socle injectable et explicite.
+
+- **Types** : `JsonResponseCache` (protocole), `InMemoryJsonCache`, predicat
+  `default_cacheable_get`, cle stable `make_get_cache_key` — module
+  `baobab_scryfall_api_caller.cache`.
+- **Facade** : `ScryfallApiCaller(web_api_caller=..., response_cache=InMemoryJsonCache())`.
+  Le meme objet cache est partage par les services par defaut. Sans instance de cache,
+  le comportement reste identique aux versions precedentes.
+- **Filtre** : `cacheable_get_predicate` optionnel ; si absent et qu'un cache est fourni,
+  le predicat par defaut s'applique (exclut notamment `search`, `random`, `autocomplete`).
+- Les **erreurs HTTP** et les reponses `object: error` ne sont **pas** mises en cache.
+- Les **POST** (`collection`, etc.) ne passent pas par ce mecanisme.
+
+```python
+from baobab_scryfall_api_caller import ScryfallApiCaller
+from baobab_scryfall_api_caller.cache import InMemoryJsonCache
+
+client = ScryfallApiCaller(
+    web_api_caller=web_api_caller,
+    response_cache=InMemoryJsonCache(),
+)
+```
+
 ## Dependance a baobab-web-api-caller
 
 La couche de transport HTTP repose **exclusivement** sur `baobab-web-api-caller`

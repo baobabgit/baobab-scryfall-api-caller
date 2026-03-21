@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any
+
+from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.services.bulk_data.bulk_data_service import BulkDataService
@@ -30,6 +34,8 @@ class ScryfallApiCaller:
         self,
         *,
         web_api_caller: WebApiTransportProtocol,
+        response_cache: JsonResponseCache | None = None,
+        cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
         cards_service: CardsService | None = None,
         sets_service: SetsService | None = None,
         rulings_service: RulingsService | None = None,
@@ -40,6 +46,10 @@ class ScryfallApiCaller:
 
         :param web_api_caller: implementation ``baobab-web-api-caller`` a utiliser
             pour tous les appels HTTP (ex. `BaobabServiceCaller` configure pour Scryfall).
+        :param response_cache: cache memoire optionnel partage par les services par defaut
+            (desactive si ``None``).
+        :param cacheable_get_predicate: filtre les GET a mettre en cache ; si ``None`` et
+            qu'un cache est fourni, le predicat par defaut du package ``cache`` s'applique.
         :param cards_service: service Cards ; sinon construit avec ``web_api_caller``.
         :param sets_service: service Sets ; sinon construit avec ``web_api_caller``.
         :param rulings_service: service Rulings ; sinon construit avec ``web_api_caller``.
@@ -54,11 +64,31 @@ class ScryfallApiCaller:
                 params={"web_api_caller": web_api_caller},
             )
         self._web_api_caller: WebApiTransportProtocol = web_api_caller
-        self.cards = cards_service or CardsService(web_api_caller=web_api_caller)
-        self.sets = sets_service or SetsService(web_api_caller=web_api_caller)
-        self.rulings = rulings_service or RulingsService(web_api_caller=web_api_caller)
-        self.catalogs = catalogs_service or CatalogsService(web_api_caller=web_api_caller)
-        self.bulk_data = bulk_data_service or BulkDataService(web_api_caller=web_api_caller)
+        self.cards = cards_service or CardsService(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
+        self.sets = sets_service or SetsService(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
+        self.rulings = rulings_service or RulingsService(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
+        self.catalogs = catalogs_service or CatalogsService(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
+        self.bulk_data = bulk_data_service or BulkDataService(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
 
     @property
     def web_api_caller(self) -> WebApiTransportProtocol:

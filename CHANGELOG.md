@@ -9,6 +9,10 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Cache optionnel** : protocole `JsonResponseCache`, implementation `InMemoryJsonCache`
+  (memoire processus uniquement), integration dans `ScryfallHttpClient` et facade
+  `ScryfallApiCaller` (`response_cache`, `cacheable_get_predicate`) ; predicat par defaut
+  pour catalogs / sets / bulk-data / rulings / carte par UUID ; tests et README.
 - **Recherche cartes** : `CardSearchQuery` (helpers `type_line`, `oracle`, `name_contains`,
   `set_code`, `cmc`, `raw`) ; `CardsService.search` accepte `query=` en alternative a
   `q=` (exactement l'un des deux). README et tests.

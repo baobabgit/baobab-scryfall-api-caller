@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any
+
+from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.mappers.ruling_mapper import RulingMapper
 from baobab_scryfall_api_caller.models.common.list_response import ListResponse
@@ -24,16 +28,22 @@ class RulingsService:
     du service.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         web_api_caller: WebApiTransportProtocol,
         api_client: RulingsApiClient | None = None,
         ruling_mapper: RulingMapper | None = None,
         list_parser: ScryfallListResponseParser | None = None,
+        response_cache: JsonResponseCache | None = None,
+        cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
     ) -> None:
         """Initialise le service Rulings avec ses dependances."""
-        self.api_client = api_client or RulingsApiClient(web_api_caller=web_api_caller)
+        self.api_client = api_client or RulingsApiClient(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
         self.ruling_mapper = ruling_mapper or RulingMapper()
         self.list_parser = list_parser or ScryfallListResponseParser()
 

@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+from typing import Any
 
+from baobab_scryfall_api_caller.cache.json_response_cache import JsonResponseCache
 from baobab_scryfall_api_caller.client.web_api_transport_protocol import WebApiTransportProtocol
 from baobab_scryfall_api_caller.exceptions import ScryfallValidationException
 from baobab_scryfall_api_caller.mappers.set_mapper import SetMapper
@@ -23,16 +26,22 @@ _SET_CODE_PATTERN = re.compile(r"^[a-z0-9]{2,10}$")
 class SetsService:
     """Expose les operations Sets V1 du perimetre courant."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         web_api_caller: WebApiTransportProtocol,
         api_client: SetsApiClient | None = None,
         set_mapper: SetMapper | None = None,
         list_parser: ScryfallListResponseParser | None = None,
+        response_cache: JsonResponseCache | None = None,
+        cacheable_get_predicate: Callable[[str, dict[str, Any] | None], bool] | None = None,
     ) -> None:
         """Initialise le service Sets avec ses dependances."""
-        self.api_client = api_client or SetsApiClient(web_api_caller=web_api_caller)
+        self.api_client = api_client or SetsApiClient(
+            web_api_caller=web_api_caller,
+            response_cache=response_cache,
+            cacheable_get_predicate=cacheable_get_predicate,
+        )
         self.set_mapper = set_mapper or SetMapper()
         self.list_parser = list_parser or ScryfallListResponseParser()
 
