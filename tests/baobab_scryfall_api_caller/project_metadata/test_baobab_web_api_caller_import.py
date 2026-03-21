@@ -1,4 +1,9 @@
-"""Verifie que la dependance runtime baobab-web-api-caller est installee."""
+"""Verifie que la dependance runtime baobab-web-api-caller est installee.
+
+Pour l'import reel du package (`baobab_web_api_caller`) requis par les tests
+d'integration live, voir la section Installation du README et
+``docs/ci_integration_tests.md``.
+"""
 
 from __future__ import annotations
 
