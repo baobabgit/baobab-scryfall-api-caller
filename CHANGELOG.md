@@ -9,6 +9,12 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Documentation installation `baobab-web-api-caller`** : README (modes wheel PyPI,
+  editable local, wheel fichier ; verification d'import ; ordre d'installation ;
+  cibles `Makefile`), guide `docs/ci_integration_tests.md` (hypotheses CI sans
+  workflow obligatoire).
+- **Makefile** : cibles `install-dev`, `install-integration-deps`, `test-integration`
+  (equivalents `pip` / `pytest` documentes dans le README).
 - **Tests d'integration reseau** : dossier `tests/integration` (marqueur pytest
   `integration`, fixture `live_scryfall_client` via `baobab-web-api-caller` et
   `ScryfallApiCaller`), jeux de donnees dans `scryfall_live_constants.py` ;

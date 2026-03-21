@@ -31,6 +31,44 @@ Pour contribuer ou lancer la suite de tests localement :
 pip install -e ".[dev]"
 ```
 
+### `baobab-web-api-caller` : installation pour les tests d'integration live
+
+Les tests du dossier **`tests/integration`** chargent le package Python
+**`baobab_web_api_caller`** (meme chaine que la production : `ServiceConfig` →
+transport → `ScryfallApiCaller`). La dependance doit donc etre **importable** via
+l'installation normale (**pip**), sans bricolage de `PYTHONPATH` ni de `sys.path`.
+
+- **Wheel PyPI** : depuis la racine de ce depot, `python -m pip install -e ".[dev]"` ;
+  pip installe `baobab-web-api-caller` selon `pyproject.toml` (`>=0.1.0,<2.0.0`).
+- **Editable local** : developpement conjoint — **1)** `python -m pip install -e`
+  `/chemin/vers/baobab-web-api-caller` **2)** puis `python -m pip install -e ".[dev]"`
+  ici ; pip reutilise l'installation locale si la version est compatible.
+- **Wheel fichier** : `python -m pip install chemin/vers/baobab_web_api_caller-*.whl`
+  puis `python -m pip install -e ".[dev]"` ; details dans `docs/ci_integration_tests.md`.
+
+**Verifier l'installation** (aucun hack de chemin) :
+
+```bash
+python -c "import importlib.metadata as m; print(m.version('baobab-web-api-caller'))"
+python -c "import baobab_web_api_caller; print('import baobab_web_api_caller: ok')"
+```
+
+**Lancer les tests live** (Internet requis) :
+
+```bash
+python -m pytest tests/integration --no-cov -m integration
+```
+
+**Cibles Makefile** (optionnel ; sous Unix ou Git Bash : `make`) :
+
+- `make install-dev` — installe ce projet en editable avec `[dev]` (meme prerequis
+  que les tests d'integration) ;
+- `make install-integration-deps` — alias de `install-dev` (nom explicite pour CI
+  ou scripts) ;
+- `make test-integration` — execute `pytest tests/integration --no-cov -m integration`.
+
+Recettes CI detaillees (PyPI, wheel artefact, editable) : **`docs/ci_integration_tests.md`**.
+
 ## Point d'entree : `ScryfallApiCaller`
 
 Le point d'entree recommande est la classe **`ScryfallApiCaller`** : elle regroupe les
@@ -177,8 +215,10 @@ exposes par `CardsService` (voir section Cards ci-dessous).
   a la demande (reseau requis). Les tests **unitaires** restent par defaut sans reseau
   (`pytest` exclut ce dossier ; voir section qualite).
 - **Dependance `baobab-web-api-caller`** : version semver bornee dans `pyproject.toml` ;
-  en cas de regression du wheel PyPI, valider l'integration avec la version installee
-  (les tests unitaires evitent l'import top-level du paquet pour rester robustes).
+  modes d'installation (wheel PyPI, editable, wheel fichier) : section **Installation**
+  ci-dessus et `docs/ci_integration_tests.md`. Les tests unitaires verifient la
+  presence du **distribution name** sans importer le package top-level ; les tests
+  d'integration exigent un import reel de `baobab_web_api_caller`.
 
 ## Packaging et typage (PEP 621 / PEP 561)
 

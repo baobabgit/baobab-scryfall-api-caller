@@ -1,3 +1,16 @@
+## 2026-03-22 12:00:00
+
+### Modifications
+- **Installabilite tests live** : README (wheel / editable / wheel fichier, verification,
+  `make`), `docs/ci_integration_tests.md`, `Makefile` ; CHANGELOG.
+
+### Buts
+- Rendre explicite l'usage de `baobab-web-api-caller` sans `sys.path` ; faciliter CI
+  et developpement conjoint.
+
+### Impact
+- Memes commandes `pytest` ; confort `make install-dev` / `make test-integration`.
+
 ## 2026-03-21 23:30:00
 
 ### Modifications
