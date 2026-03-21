@@ -1,3 +1,19 @@
+## 2026-03-21 23:30:00
+
+### Modifications
+- **Integration live — debit Scryfall** : `tests/integration/live_transport_config.py`
+  (`build_live_service_config`, ~6 req/s, `User-Agent` + `Accept` via `ServiceConfig`) ;
+  `conftest.py` aligne ; tests unitaires de structure `test_live_transport_config.py` ;
+  README / CHANGELOG.
+
+### Buts
+- Respecter les attentes Scryfall (debit conservateur, en-tetes explicites) sans HTTP
+  hors `baobab-web-api-caller`.
+
+### Impact
+- Meme commande `pytest tests/integration --no-cov` ; delais implicites via throttling
+  du transport.
+
 ## 2026-03-21 22:00:00
 
 ### Modifications
