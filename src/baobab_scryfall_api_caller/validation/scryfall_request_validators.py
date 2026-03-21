@@ -68,3 +68,34 @@ class ScryfallRequestValidators:
                 params={field_name: value},
             ) from error
         return canonical
+
+    @staticmethod
+    def require_non_empty_text(*, value: str, field_name: str) -> str:
+        """Valide une chaine non vide apres suppression des espaces de tete/queue."""
+        if not isinstance(value, str):
+            raise ScryfallValidationException(
+                f"'{field_name}' must be a string.",
+                params={field_name: value},
+            )
+        stripped = value.strip()
+        if not stripped:
+            raise ScryfallValidationException(
+                f"'{field_name}' cannot be empty.",
+                params={field_name: value},
+            )
+        return stripped
+
+    @staticmethod
+    def require_strict_positive_int(*, value: int, field_name: str) -> int:
+        """Entier strictement positif (ex. mtgo_id, multiverse_id)."""
+        if not isinstance(value, int):
+            raise ScryfallValidationException(
+                f"'{field_name}' must be an integer.",
+                params={field_name: value},
+            )
+        if value <= 0:
+            raise ScryfallValidationException(
+                f"'{field_name}' must be a positive integer.",
+                params={field_name: value},
+            )
+        return value

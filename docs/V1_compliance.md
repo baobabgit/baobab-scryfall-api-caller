@@ -20,7 +20,7 @@ et a l'etat du code a la finalisation V1.
 
 | Domaine | Cahier des charges V1 | Implementation actuelle |
 |---------|------------------------|-------------------------|
-| **Cards** | id, MTGO, Cardmarket, set+numero, named, search, collection, autocomplete, random | id, MTGO, Cardmarket, set+numero, named (exact/fuzzy), search, autocomplete, random ; **collection** non expose |
+| **Cards** | id, MTGO, Cardmarket, set+numero, named, search, collection, autocomplete, random | id, MTGO, Cardmarket, set+numero, named (exact/fuzzy), search, collection (`get_collection`), autocomplete, random |
 | **Sets** | liste, par code, par id | `list_sets`, `get_by_code`, `get_by_id` |
 | **Rulings** | par id carte | `list_for_card_id` |
 | **Catalogs** | generique + helpers | `get_catalog` + helpers |
@@ -28,9 +28,7 @@ et a l'etat du code a la finalisation V1.
 
 ### Ecarts residuels (Cards)
 
-L'endpoint Scryfall **collection** (`POST /cards/collection`) n'est pas expose par
-`CardsService` dans le perimetre actuel. Le transport (`POST` JSON) reste disponible
-cote `CardsApiClient` pour une extension ulterieure.
+Aucun ecart majeur sur le perimetre Cards V1 documente dans le cahier des charges.
 
 ## Facade publique
 
@@ -41,6 +39,5 @@ cote `CardsApiClient` pour une extension ulterieure.
 
 ## Recommandations post-V1
 
-1. Implementer l'endpoint Cards **collection** en conservant validateurs et mappers.
-2. Envisager des tests d'integration contre l'API Scryfall (hors scope des tests unitaires actuels).
-3. Documenter les versions de `baobab-web-api-caller` validees en integration continue.
+1. Envisager des tests d'integration contre l'API Scryfall (hors scope des tests unitaires actuels).
+2. Documenter les versions de `baobab-web-api-caller` validees en integration continue.

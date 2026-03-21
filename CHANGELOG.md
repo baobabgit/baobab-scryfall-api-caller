@@ -8,6 +8,11 @@ et le projet suit le versioning semantique.
 ## [Unreleased]
 
 ### Added
+- Domaine Cards : `CardsService.get_collection` (`POST /cards/collection`, `CardCollectionResult`) ;
+  modeles `CardCollectionIdentifier`, `CardCollectionResult` ; constante
+  `MAX_CARD_COLLECTION_IDENTIFIERS` ; mapper `CardCollectionMapper` ;
+  validateurs `ScryfallRequestValidators.require_non_empty_text`,
+  `require_strict_positive_int`.
 - Domaine Cards : `CardsService.search` (`GET /cards/search`, `ListResponse[Card]`),
   `CardsService.autocomplete` (`GET /cards/autocomplete`, modele `AutocompleteResult`),
   `CardsService.random` (`GET /cards/random`) ; mapper `AutocompleteMapper` ;
@@ -42,6 +47,8 @@ et le projet suit le versioning semantique.
   `get_by_cardmarket_id`, `get_by_set_and_number`, `get_named` exact/fuzzy).
 
 ### Changed
+- `CardsService` : validation des entiers positifs (`mtgo_id`, `cardmarket_id`) via
+  `ScryfallRequestValidators.require_strict_positive_int` (factorisation avec collection).
 - Integration `baobab-web-api-caller` : contrainte de version `>=0.1.0,<2.0.0` ;
   `ScryfallHttpClient` tente les signatures `BaobabServiceCaller` (`path`,
   `query_params`, `json_body`) et lit `BaobabResponse.json_data` ; typage
@@ -54,5 +61,4 @@ et le projet suit le versioning semantique.
 
 ### Fixed
 - Documentation : README et changelog alignes sur les methodes reellement exposees
-  par `CardsService` (y compris `search`, `autocomplete`, `random`) ; `collection`
-  reste non implemente dans le perimetre actuel.
+  par `CardsService` (y compris `search`, `collection`, `autocomplete`, `random`).

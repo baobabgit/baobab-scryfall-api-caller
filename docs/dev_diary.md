@@ -1,3 +1,19 @@
+## 2026-03-21 18:00:00
+
+### Modifications
+- Domaine Cards : `CardsService.get_collection` (`POST /cards/collection`) avec
+  `CardCollectionIdentifier`, `CardCollectionResult`, `CardCollectionMapper` ;
+  limite 75 identifiants ; validation des schemas Scryfall ; `not_found` mappe en
+  tuple de dicts ; validateurs `require_non_empty_text` / `require_strict_positive_int`.
+- README, `CHANGELOG.md`, `docs/V1_compliance.md` ; tests unitaires (modeles, mapper,
+  service, validateurs).
+
+### Buts
+- Finaliser le perimetre Cards V1 incluant `collection`.
+
+### Impact
+- `client.cards.get_collection(...)` disponible pour les lots d'identifiants.
+
 ## 2026-03-21 12:00:00
 
 ### Modifications
