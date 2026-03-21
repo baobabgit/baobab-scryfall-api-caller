@@ -27,6 +27,20 @@ class FakeWebApiCaller:
             raise self.error
         return self.response
 
+    def post(
+        self,
+        *,
+        route: str,
+        params: dict[str, Any] | None,
+        json: dict[str, Any],
+        headers: dict[str, str],
+    ) -> Any:
+        """Simule la methode post du caller HTTP."""
+        self.last_call = {"route": route, "params": params, "json": json, "headers": headers}
+        if self.error is not None:
+            raise self.error
+        return self.response
+
 
 class FakeResponse:
     """Double de reponse HTTP avec status + body json."""
@@ -102,3 +116,12 @@ class TestCardsApiClient:
             assert True
         else:
             assert False, "Expected ScryfallResponseFormatException"
+
+    def test_post_delegates_to_http_layer(self) -> None:
+        """Le POST JSON doit transiter vers ScryfallHttpClient (futurs usages)."""
+        web_api_caller = FakeWebApiCaller(response={"object": "list", "data": []})
+        client = CardsApiClient(web_api_caller=web_api_caller)
+        payload = client.post(route="/cards/collection", payload={"identifiers": []})
+        assert payload["object"] == "list"
+        assert web_api_caller.last_call is not None
+        assert web_api_caller.last_call["json"] == {"identifiers": []}
