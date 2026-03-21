@@ -1,3 +1,16 @@
+## 2026-03-21 20:00:00
+
+### Modifications
+- Ajout du workflow **GitHub Actions** `ci.yml` : qualite statique + pytest avec
+  seuil de couverture 90 % ; documentation README (badge, commandes alignees sur
+  bandit `src` + `tests`) ; `CHANGELOG.md`.
+
+### Buts
+- Materialiser la preuve de qualite par une CI automatique sur `main`.
+
+### Impact
+- Chaque PR declenche les memes controles qu'en local.
+
 ## 2026-03-21 19:30:00
 
 ### Modifications

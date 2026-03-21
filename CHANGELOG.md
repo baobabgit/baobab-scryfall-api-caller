@@ -7,6 +7,11 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+### Added
+- **CI GitHub Actions** : workflow `.github/workflows/ci.yml` (black, pylint, mypy,
+  flake8, bandit, pytest + couverture seuil 90 %) sur push / PR vers `main` ;
+  badge et section README sur l'integration continue.
+
 ### Changed
 - Harmonisation **Cards V1** : validations texte unifiees via
   `ScryfallRequestValidators.require_non_empty_text` (suppression du helper prive du
