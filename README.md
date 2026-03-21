@@ -216,8 +216,18 @@ qui utilisent la **meme chaine** que le README : `ServiceConfig` → `HttpTransp
 `BaobabServiceCaller` → **`ScryfallApiCaller`**, ciblant **`https://api.scryfall.com`**.
 
 - **Objectif** : valider transport, mapping et exceptions sur reponses reelles (hors mocks).
+- **Debit et HTTP** : la configuration est centralisee dans
+  `tests/integration/live_transport_config.py` et injectee via ``ServiceConfig`` de
+  `baobab-web-api-caller` :
+  - **Throttling** : environ **6 requetes/seconde** en moyenne (intervalle minimal **1/6 s**
+    entre deux appels, via `RateLimitPolicy`), volontairement dans la zone conservative
+    5–8 req/s par rapport aux limites Scryfall.
+  - **En-tetes par defaut** : `User-Agent` explicite dedie aux tests d'integration
+    (nom du projet + URL du depot) et `Accept: application/json; charset=utf-8`.
+  Tous les tests live passent par la fixture ``live_scryfall_client`` qui applique cette
+  configuration au transport (pas de reconstruction par test).
 - **Contraintes** : acces Internet ; respect des [lignes directrices Scryfall](https://scryfall.com/docs/api)
-  (debit raisonnable ; pas de secrets ni credentials).
+  (pas de secrets ni credentials).
 - **Execution** :
   - uniquement integration : `python -m pytest tests/integration --no-cov`
     (le `--no-cov` evite d'appliquer le seuil de couverture 90 % aux seuls tests
@@ -226,8 +236,9 @@ qui utilisent la **meme chaine** que le README : `ServiceConfig` → `HttpTransp
 - **Couverture** : les runs **unitaires** (`pytest` / `pytest tests/`) calculent la
   couverture avec `pytest-cov`. Les tests d'integration peuvent etre mesures avec
   `python -m pytest tests/integration --cov=baobab_scryfall_api_caller` si besoin.
-- **Donnees de test** : identifiants et requetes stables documentes dans
-  `tests/integration/scryfall_live_constants.py`.
+- **Donnees de test** : identifiants et requetes stables dans
+  `tests/integration/scryfall_live_constants.py` ; politique HTTP (debit + headers) dans
+  `tests/integration/live_transport_config.py`.
 
 ## Conformite cahier des charges (V1)
 

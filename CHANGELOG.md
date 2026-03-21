@@ -21,6 +21,11 @@ et le projet suit le versioning semantique.
 
 ### Changed
 
+- **Tests d'integration live** : configuration centralisee dans
+  `tests/integration/live_transport_config.py` — throttling ~**6 req/s**
+  (`RateLimitPolicy`, intervalle minimal **1/6 s**), en-tetes par defaut
+  `User-Agent` (integration) et `Accept: application/json; charset=utf-8` injectes via
+  `ServiceConfig` ; fixture `live_scryfall_client` mise a jour dans `conftest.py`.
 - **pytest** : `tests/integration` exclu par defaut (`--ignore`) pour que `pytest` /
   `pytest tests/` n'executent que les tests unitaires avec couverture ; marker
   `integration` enregistre dans `pyproject.toml`.

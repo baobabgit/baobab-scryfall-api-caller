@@ -7,19 +7,21 @@ from baobab_web_api_caller import (
     BaobabServiceCaller,
     HttpTransportCaller,
     RequestsSessionFactory,
-    ServiceConfig,
 )
 
 from baobab_scryfall_api_caller import ScryfallApiCaller
+
+from tests.integration.live_transport_config import build_live_service_config
 
 
 @pytest.fixture(scope="session")
 def live_scryfall_client() -> ScryfallApiCaller:
     """Construit la chaine reelle : ServiceConfig + transport + BaobabServiceCaller.
 
-    Cible ``https://api.scryfall.com`` comme dans le README du projet.
+    Headers par defaut (``User-Agent``, ``Accept``) et throttling sont definis dans
+    :mod:`tests.integration.live_transport_config` pour respecter l'API Scryfall.
     """
-    service_config = ServiceConfig(base_url="https://api.scryfall.com")
+    service_config = build_live_service_config()
     transport = HttpTransportCaller.from_service_config(
         service_config=service_config,
         session_factory=RequestsSessionFactory(),
