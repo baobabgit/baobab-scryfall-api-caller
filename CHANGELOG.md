@@ -8,6 +8,9 @@ et le projet suit le versioning semantique.
 ## [Unreleased]
 
 ### Added
+- Domaine Bulk Data : modele `BulkData`, `BulkDataMapper`, `BulkDataApiClient`,
+  `BulkDataService` (liste, `get_by_id`, `get_by_type`, exposition `download_uri`
+  sans telechargement).
 - Domaine Catalogs : modele `Catalog`, `CatalogMapper`, `CatalogsApiClient`,
   `CatalogsService` (`get_catalog` + helpers frequents).
 - Domaine Rulings : modele `Ruling`, `RulingMapper`, `RulingsApiClient`,

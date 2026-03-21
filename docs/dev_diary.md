@@ -1,3 +1,21 @@
+## 2026-03-21 02:00:00
+
+### Modifications
+- Ajout du domaine Bulk Data : `BulkData`, `BulkDataMapper`, `BulkDataApiClient`,
+  `BulkDataService` avec liste (`/bulk-data`), acces par UUID ou par type
+  kebab-case, et regles de coherence sur `download_uri` / `size`
+  (`ScryfallBulkDataException`).
+- Tests unitaires miroir et documentation (`README.md`, `CHANGELOG.md`).
+- Test supplementaire : `get_by_type` avec espaces uniquement (slug vide apres
+  `strip`).
+
+### Buts
+- Exposer les metadonnees des exports bulk Scryfall sans telechargement ni cache.
+
+### Impact
+- Les integrations peuvent resoudre l'URL courante des fichiers bulk de maniere
+  typee et validee.
+
 ## 2026-03-21 01:00:00
 
 ### Modifications
