@@ -6,8 +6,11 @@ from baobab_scryfall_api_caller.exceptions import ScryfallResponseFormatExceptio
 from baobab_scryfall_api_caller.mappers.scryfall_payload_coercions import (
     as_bool,
     as_int,
+    as_legalities_tuple,
+    as_optional_float,
     as_optional_int,
     as_optional_str,
+    as_string_tuple,
 )
 
 
@@ -61,3 +64,28 @@ class TestScryfallPayloadCoercions:
     def test_as_bool_none_uses_default(self) -> None:
         """None doit retourner la valeur par defaut booleenne."""
         assert as_bool(None, default=True, invalid_message="bad") is True
+
+    def test_as_optional_float_int_json(self) -> None:
+        """Les entiers JSON sont acceptes pour cmc."""
+        assert as_optional_float(3, invalid_message="bad") == 3.0
+
+    def test_as_optional_float_rejects_bool(self) -> None:
+        """Les booleens ne sont pas des nombres."""
+        try:
+            as_optional_float(True, invalid_message="bad")
+        except ScryfallResponseFormatException:
+            assert True
+        else:
+            assert False, "Expected ScryfallResponseFormatException"
+
+    def test_as_string_tuple_nominal(self) -> None:
+        """Liste de chaines vers tuple."""
+        assert as_string_tuple(["W", "U"], invalid_message="bad") == ("W", "U")
+
+    def test_as_legalities_sorted(self) -> None:
+        """Les legalites sont triees par nom de format."""
+        out = as_legalities_tuple(
+            {"modern": "legal", "legacy": "banned"},
+            invalid_message="bad",
+        )
+        assert out == (("legacy", "banned"), ("modern", "legal"))

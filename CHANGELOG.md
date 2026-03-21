@@ -9,6 +9,11 @@ et le projet suit le versioning semantique.
 
 ### Added
 
+- **Modeles** : `ImageUris` ; enrichissement de `Card` (type line, oracle text,
+  rarete, cmc, couleurs, langue, artiste, images, jeux, legalites, drapeaux foil,
+  etc.), de `CardFace` (loyalty, defense, flavor, artiste, `image_uris`), et
+  `ruling_id` optionnel sur `Ruling` ; coercitions `as_optional_float`,
+  `as_string_tuple`, `as_legalities_tuple` ; tests de mapping.
 - **Rulings** : `list_for_card_multiverse_id`, `list_for_card_mtgo_id`,
   `list_for_card_arena_id` (routes Scryfall alignees sur les identifiants alternatifs).
 - **Sets** : `list_cards_in_set`, `list_cards_in_set_by_id` (`GET /sets/.../cards`) ;

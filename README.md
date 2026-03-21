@@ -365,6 +365,12 @@ Le projet inclut un socle commun pour les reponses de type liste :
 
 - `ListResponse[T]` pour porter les elements typables ;
 - `PaginationMetadata` pour `has_more`, `next_page`, `total_cards` et `warnings` ;
+
+Les modeles de domaine (`Card`, `CardFace`, `Ruling`, etc.) sont enrichis au fil des
+versions avec des **champs optionnels** en fin de definition : les reponses Scryfall
+minimales restent valides, et les payloads complets exposent davantage de metadonnees
+(notamment `ImageUris`, legalites, couleurs, textes Oracle, `ruling_id` pour un ruling).
+Import : `from baobab_scryfall_api_caller.models.cards import Card, CardFace, ImageUris`.
 - `ScryfallWarning` pour normaliser les avertissements ;
 - `ScryfallListResponseValidator` et `ScryfallListResponseParser` pour valider/parser
   les payloads de liste ;

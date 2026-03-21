@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from baobab_scryfall_api_caller.exceptions import ScryfallResponseFormatException
+from baobab_scryfall_api_caller.mappers.scryfall_payload_coercions import as_optional_str
 from baobab_scryfall_api_caller.models.rulings.ruling import Ruling
 
 
@@ -51,9 +52,16 @@ class RulingMapper:
                 response_detail=raw_ruling,
             )
 
+        ruling_id = as_optional_str(
+            raw_ruling.get("id"),
+            invalid_message="Ruling payload contains an invalid 'id' field.",
+            response_detail=raw_ruling,
+        )
+
         return Ruling(
             oracle_id=oracle_id,
             source=source,
             published_at=published_at,
             comment=comment,
+            ruling_id=ruling_id,
         )

@@ -13,9 +13,11 @@ class Ruling:
     :ivar source: Source du texte (ex. ``wotc``).
     :ivar published_at: Date de publication au format ISO (date).
     :ivar comment: Texte integral du ruling.
+    :ivar ruling_id: Identifiant UUID du ruling Scryfall si present dans la reponse.
     """
 
     oracle_id: str
     source: str
     published_at: str
     comment: str
+    ruling_id: str | None = None
