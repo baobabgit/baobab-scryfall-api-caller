@@ -1,3 +1,16 @@
+## 2026-03-21 19:30:00
+
+### Modifications
+- Passage de finition domaine **Cards V1** : factorisation validations texte
+  (`require_non_empty_text`), docstrings, README (tableau + erreurs), conformite V1,
+  test de surface publique `CardsService`.
+
+### Buts
+- Uniformiser l'API et la documentation apres ajout search / random / autocomplete / collection.
+
+### Impact
+- `CardsService` et README decrivent de maniere alignee le perimetre V1 Cards.
+
 ## 2026-03-21 18:00:00
 
 ### Modifications

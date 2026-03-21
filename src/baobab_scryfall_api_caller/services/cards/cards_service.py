@@ -30,7 +30,13 @@ from baobab_scryfall_api_caller.validation.scryfall_request_validators import (
 
 
 class CardsService:
-    """Expose les operations Cards V1 du perimetre courant."""
+    """Service metier du domaine **Cards** Scryfall (conformite V1).
+
+    Couvre les acces unitaires, la recherche DSL, l'autocompletion, le tirage aleatoire
+    et la resolution en lot (`POST /cards/collection`). Les erreurs de validation locale
+    levent `ScryfallValidationException` ; les erreurs transport / HTTP / format de
+    reponse sont traduites par `ScryfallHttpClient` et les mappers.
+    """
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -42,7 +48,7 @@ class CardsService:
         autocomplete_mapper: AutocompleteMapper | None = None,
         collection_mapper: CardCollectionMapper | None = None,
     ) -> None:
-        """Initialise le service Cards avec ses dependances."""
+        """Initialise le service Cards et les mappers / clients injectables."""
         self.api_client = api_client or CardsApiClient(web_api_caller=web_api_caller)
         self.card_mapper = card_mapper or CardMapper()
         self.list_parser = list_parser or ScryfallListResponseParser()
@@ -52,13 +58,19 @@ class CardsService:
         )
 
     def get_by_id(self, card_id: str) -> Card:
-        """Recupere une carte par identifiant Scryfall."""
-        normalized_card_id = self._require_non_empty_str(card_id=card_id, field_name="card_id")
+        """Recupere une carte par identifiant Scryfall (`GET /cards/{id}`).
+
+        :return: Carte mappee.
+        """
+        normalized_card_id = ScryfallRequestValidators.require_non_empty_text(
+            value=card_id,
+            field_name="card_id",
+        )
         payload = self.api_client.get(route=f"/cards/{normalized_card_id}")
         return self.card_mapper.map_card(payload)
 
     def get_by_mtgo_id(self, mtgo_id: int) -> Card:
-        """Recupere une carte par identifiant MTGO."""
+        """Recupere une carte par identifiant MTGO (`GET /cards/mtgo/{id}`)."""
         normalized_mtgo_id = ScryfallRequestValidators.require_strict_positive_int(
             value=mtgo_id,
             field_name="mtgo_id",
@@ -67,7 +79,7 @@ class CardsService:
         return self.card_mapper.map_card(payload)
 
     def get_by_cardmarket_id(self, cardmarket_id: int) -> Card:
-        """Recupere une carte par identifiant Cardmarket."""
+        """Recupere une carte par identifiant Cardmarket (`GET /cards/cardmarket/{id}`)."""
         normalized_cardmarket_id = ScryfallRequestValidators.require_strict_positive_int(
             value=cardmarket_id,
             field_name="cardmarket_id",
@@ -76,10 +88,16 @@ class CardsService:
         return self.card_mapper.map_card(payload)
 
     def get_by_set_and_number(self, set_code: str, collector_number: str) -> Card:
-        """Recupere une carte par couple code set + numero de collection."""
-        normalized_set_code = self._require_non_empty_str(card_id=set_code, field_name="set_code")
-        normalized_collector_number = self._require_non_empty_str(
-            card_id=collector_number,
+        """Recupere une carte par code d'extension + numero de collection.
+
+        (`GET /cards/{set}/{collector_number}` — code d'extension normalise en minuscules.)
+        """
+        normalized_set_code = ScryfallRequestValidators.require_non_empty_text(
+            value=set_code,
+            field_name="set_code",
+        )
+        normalized_collector_number = ScryfallRequestValidators.require_non_empty_text(
+            value=collector_number,
             field_name="collector_number",
         )
         payload = self.api_client.get(
@@ -102,20 +120,27 @@ class CardsService:
 
         params: dict[str, str]
         if exact is not None:
-            normalized_exact = self._require_non_empty_str(card_id=exact, field_name="exact")
+            normalized_exact = ScryfallRequestValidators.require_non_empty_text(
+                value=exact,
+                field_name="exact",
+            )
             params = {"exact": normalized_exact}
         else:
-            normalized_fuzzy = self._require_non_empty_str(card_id=fuzzy, field_name="fuzzy")
+            assert fuzzy is not None
+            normalized_fuzzy = ScryfallRequestValidators.require_non_empty_text(
+                value=fuzzy,
+                field_name="fuzzy",
+            )
             params = {"fuzzy": normalized_fuzzy}
 
         payload = self.api_client.get(route="/cards/named", params=params)
         return self.card_mapper.map_card(payload)
 
     def search(self, *, q: str, page: int | None = None) -> ListResponse[Card]:
-        """Recherche de cartes via le DSL Scryfall (reponse paginee).
+        """Recherche de cartes via le DSL Scryfall (`GET /cards/search`, liste paginee).
 
         Le parametre ``q`` est transmis tel quel a l'API (sans reecriture du DSL),
-        hormis les validations locales de type et de chaine vide.
+        apres validation de type et de non-vide (strip pour le test de vide uniquement).
         """
         validated_q = ScryfallRequestValidators.require_scryfall_query_string(
             value=q,
@@ -132,7 +157,7 @@ class CardsService:
         )
 
     def autocomplete(self, *, q: str) -> AutocompleteResult:
-        """Propose des noms de cartes correspondant au prefixe ``q``."""
+        """Suggestions de noms (`GET /cards/autocomplete`)."""
         validated_q = ScryfallRequestValidators.require_scryfall_query_string(
             value=q,
             field_name="q",
@@ -160,7 +185,11 @@ class CardsService:
         *,
         identifiers: Sequence[CardCollectionIdentifier],
     ) -> CardCollectionResult:
-        """Recupere plusieurs cartes via POST /cards/collection (max 75 identifiants)."""
+        """Resolution en lot (`POST /cards/collection`, max 75 identifiants).
+
+        Les cartes trouvees sont mappees en `Card` ; les identifiants non resolus
+        sont exposes dans ``not_found`` (meme structure que cote Scryfall).
+        """
         self._validate_collection_identifiers(identifiers=identifiers)
         request_body = {
             "identifiers": [item.to_api_dict() for item in identifiers],
@@ -202,18 +231,3 @@ class CardsService:
                     f"Item at index {index} must be a CardCollectionIdentifier.",
                     params={"index": index, "item": item},
                 )
-
-    @staticmethod
-    def _require_non_empty_str(*, card_id: str | None, field_name: str) -> str:
-        if not isinstance(card_id, str):
-            raise ScryfallValidationException(
-                f"'{field_name}' must be a string.",
-                params={field_name: card_id},
-            )
-        normalized = card_id.strip()
-        if not normalized:
-            raise ScryfallValidationException(
-                f"'{field_name}' cannot be empty.",
-                params={field_name: card_id},
-            )
-        return normalized

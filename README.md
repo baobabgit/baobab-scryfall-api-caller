@@ -172,8 +172,8 @@ Les rapports de couverture (HTML, XML, JSON) sont generes sous `docs/tests/cover
 
 ## Conformite cahier des charges (V1)
 
-Une **matrice de conformite** detaillee (exigences structurelles, ecarts Cards,
-recommandations post-V1) est maintenue dans `docs/V1_compliance.md`.
+Une **matrice de conformite** detaillee (exigences structurelles, synthese domaine
+Cards V1, recommandations post-V1) est maintenue dans `docs/V1_compliance.md`.
 
 ## Transport HTTP partage
 
@@ -210,20 +210,29 @@ Le projet inclut un socle commun pour les reponses de type liste :
   les payloads de liste ;
 - `ScryfallPage[T]` pour manipuler une page locale sans iteration reseau automatique.
 
-## Cards (perimetre actuel)
+## Cards (V1)
 
-Disponible via `client.cards` ou `CardsService` :
+Disponible via `client.cards` ou `CardsService`. Toutes les operations V1 Scryfall
+prevues pour les cartes (acces unitaires, named, search, autocomplete, random,
+collection) sont exposees.
 
-- `get_by_id(card_id)` ;
-- `get_by_mtgo_id(mtgo_id)` ;
-- `get_by_cardmarket_id(cardmarket_id)` ;
-- `get_by_set_and_number(set_code, collector_number)` ;
-- `get_named(exact=...)` ou `get_named(fuzzy=...)` ;
-- `search(q=..., page=...)` : recherche DSL (`GET /cards/search`, `ListResponse[Card]`) ;
-- `autocomplete(q=...)` : suggestions de noms (`GET /cards/autocomplete`, `AutocompleteResult`) ;
-- `random(q=...)` : carte aleatoire (`GET /cards/random`, `q` optionnel) ;
-- `get_collection(identifiers=...)` : lot via `POST /cards/collection` (`CardCollectionResult` :
-  cartes trouvees + `not_found`).
+| Methode | Retour | Endpoint HTTP |
+|---------|--------|----------------|
+| `get_by_id(card_id)` | `Card` | `GET /cards/{id}` |
+| `get_by_mtgo_id(mtgo_id)` | `Card` | `GET /cards/mtgo/{id}` |
+| `get_by_cardmarket_id(cardmarket_id)` | `Card` | `GET /cards/cardmarket/{id}` |
+| `get_by_set_and_number(set_code, collector_number)` | `Card` | `GET /cards/{set}/{collector_number}` |
+| `get_named(exact=...)` ou `get_named(fuzzy=...)` | `Card` | `GET /cards/named` |
+| `search(q=..., page=...)` | `ListResponse[Card]` | `GET /cards/search` |
+| `autocomplete(q=...)` | `AutocompleteResult` | `GET /cards/autocomplete` |
+| `random(q=...)` | `Card` | `GET /cards/random` |
+| `get_collection(identifiers=...)` | `CardCollectionResult` | `POST /cards/collection` |
+
+**Erreurs** : les erreurs de validation locale levent `ScryfallValidationException` ;
+les erreurs HTTP / transport, les erreurs de format de payload JSON et les erreurs
+Scryfall (`object: error`) sont traduites via `ScryfallHttpClient` en exceptions
+metier (`ScryfallRequestException`, `ScryfallNotFoundException`, etc.) et la
+`BaobabScryfallApiCallerException` racine.
 
 Exemple (facade) :
 
@@ -252,18 +261,19 @@ batch = client.cards.get_collection(
 )
 ```
 
-Contraintes metier appliquees :
+Contraintes et comportements :
 
-- `named` impose exactement un mode (`exact` ou `fuzzy`) ;
-- `q` pour `search`, `autocomplete` et `random` (si fourni) doit etre une chaine non vide
-  (apres suppression des espaces de tete et de queue pour le test de vide) ; le DSL transmis
-  a Scryfall n'est pas reecrit ;
-- `page` pour `search` est optionnel (entier strictement positif) ;
-- les reponses liste de `search` utilisent `ScryfallListResponseParser` ;
-- aucune pagination reseau implicite n'est executee automatiquement au-dela de la page demandee ;
-- `get_collection` accepte une sequence non vide d'au plus `MAX_CARD_COLLECTION_IDENTIFIERS`
-  (75) `CardCollectionIdentifier` ; chaque identifiant suit un seul schema Scryfall
-  (id, mtgo_id, multiverse_id, oracle_id, illustration_id, name, name+set, set+collector_number).
+- **Champs texte** (`card_id`, codes set, `exact` / `fuzzy`, etc.) : non vides apres
+  `strip` ; le code d'extension est en outre passe en minuscules dans l'URL.
+- **named** : exactement un seul parmi `exact` ou `fuzzy`.
+- **search / autocomplete / random** : `q` doit etre une chaine non vide (test de vide
+  apres `strip`) ; le DSL transmis a Scryfall n'est pas reecrit.
+- **search** : `page` optionnel (entier >= 1) ; reponse avec `metadata` (`has_more`,
+  `next_page`, `total_cards`, `warnings`) via `ScryfallListResponseParser` ; aucune
+  pagination reseau supplementaire n'est declenchee automatiquement.
+- **get_collection** : sequence non vide, au plus `MAX_CARD_COLLECTION_IDENTIFIERS` (75)
+  `CardCollectionIdentifier` ; un schema par identifiant (voir modele) ; `not_found`
+  liste les identifiants non resolus tels que renvoyes par Scryfall.
 
 ## Sets (perimetre actuel)
 

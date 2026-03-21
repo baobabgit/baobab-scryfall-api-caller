@@ -7,6 +7,13 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+### Changed
+- Harmonisation **Cards V1** : validations texte unifiees via
+  `ScryfallRequestValidators.require_non_empty_text` (suppression du helper prive du
+  service) ; docstrings `CardsService` / `ScryfallApiCaller` ; README (tableau des
+  methodes, types de retour, erreurs, contraintes) ; `docs/V1_compliance.md` (synthese
+  domaine Cards) ; test de surface `test_cards_service_v1_surface`.
+
 ### Added
 - Domaine Cards : `CardsService.get_collection` (`POST /cards/collection`, `CardCollectionResult`) ;
   modeles `CardCollectionIdentifier`, `CardCollectionResult` ; constante
