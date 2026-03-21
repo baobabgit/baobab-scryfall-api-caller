@@ -1,7 +1,5 @@
 # baobab-scryfall-api-caller
 
-[![CI](https://github.com/baobabgit/baobab-scryfall-api-caller/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/baobabgit/baobab-scryfall-api-caller/actions/workflows/ci.yml)
-
 ## But de la librairie
 
 `baobab-scryfall-api-caller` est une librairie Python qui fournit une API orientee metier
@@ -161,8 +159,8 @@ exposes par `CardsService` (voir section Cards ci-dessous).
 - Structure `src/` / `tests/` / `docs/` ; tests en arborescence miroir.
 - Facade **`ScryfallApiCaller`** et domaines **Cards**, **Sets**, **Rulings**,
   **Catalogs**, **Bulk Data** comme decrit ci-dessous.
-- Qualite : outils configures dans `pyproject.toml` ; **CI GitHub Actions** sur `main`
-  (meme chaine que les commandes locales recommandees).
+- Qualite : outils configures dans `pyproject.toml` (executes localement ou dans votre
+  pipeline ; voir section qualite ci-dessous).
 - Couverture de tests : seuil minimal **90 %** ; objectif atteint au-dela sur la branche
   RC (rapport sous `docs/tests/coverage/`).
 
@@ -174,11 +172,13 @@ exposes par `CardsService` (voir section Cards ci-dessous).
   README.
 - **Bulk data** : pas de telechargement automatique des fichiers export ; seules les
   metadonnees et l'URL (`download_uri`) sont exposees (hors scope V1, voir specifications).
-- **Tests** : la suite du depot est **unitaire** (mocks) ; pas de tests d'integration
-  reseau contre l'API Scryfall dans ce repository.
+- **Tests d'integration** : une suite **optionnelle** (`tests/integration`, marqueur
+  `integration`) appelle l'API reelle Scryfall via `baobab-web-api-caller` ; a lancer
+  a la demande (reseau requis). Les tests **unitaires** restent par defaut sans reseau
+  (`pytest` exclut ce dossier ; voir section qualite).
 - **Dependance `baobab-web-api-caller`** : version semver bornee dans `pyproject.toml` ;
   en cas de regression du wheel PyPI, valider l'integration avec la version installee
-  (les tests de ce depot n'importent pas le paquet top-level pour rester robustes en CI).
+  (les tests unitaires evitent l'import top-level du paquet pour rester robustes).
 
 ## Packaging et typage (PEP 621 / PEP 561)
 
@@ -202,19 +202,32 @@ Les commandes suivantes sont attendues vertes avant fusion :
 - `python -m mypy src/baobab_scryfall_api_caller`
 - `python -m flake8 src tests`
 - `python -m bandit -c pyproject.toml -r src tests`
-- `python -m pytest tests/` (avec `pytest-cov` : seuil 90 % dans `pyproject.toml`)
+- `python -m pytest tests/` ou `python -m pytest` : **tests unitaires uniquement**
+  (dossier `tests/integration` ignore dans la configuration pytest par defaut) avec
+  `pytest-cov` et seuil 90 %.
 
 Les rapports de couverture (HTML, XML, JSON) sont generes sous `docs/tests/coverage/`
 (configure dans `pyproject.toml` ; fichiers generes listes dans `.gitignore`).
 
-### Integration continue (GitHub Actions)
+### Tests d'integration reseau (Scryfall)
 
-Le workflow **`.github/workflows/ci.yml`** execute sur chaque push et pull request vers
-`main` : installation editable (`pip install -e ".[dev]"`), puis **black**, **pylint**,
-**mypy**, **flake8**, **bandit** et **pytest** avec la meme configuration que localement.
-Le pipeline echoue si un outil qualite echoue, si les tests echouent ou si la couverture
-est inferieure au seuil (**90 %**, `cov-fail-under` / `[tool.coverage.report]`).
-Python **3.11** est utilise en CI (aligne sur `requires-python` et `target-version` black).
+Le dossier **`tests/integration`** contient des tests marques **`@pytest.mark.integration`**
+qui utilisent la **meme chaine** que le README : `ServiceConfig` → `HttpTransportCaller` →
+`BaobabServiceCaller` → **`ScryfallApiCaller`**, ciblant **`https://api.scryfall.com`**.
+
+- **Objectif** : valider transport, mapping et exceptions sur reponses reelles (hors mocks).
+- **Contraintes** : acces Internet ; respect des [lignes directrices Scryfall](https://scryfall.com/docs/api)
+  (debit raisonnable ; pas de secrets ni credentials).
+- **Execution** :
+  - uniquement integration : `python -m pytest tests/integration --no-cov`
+    (le `--no-cov` evite d'appliquer le seuil de couverture 90 % aux seuls tests
+    reseau, qui feraient sinon chuter le rapport global).
+  - filtre sur le marqueur : `python -m pytest tests/integration -m integration --no-cov`
+- **Couverture** : les runs **unitaires** (`pytest` / `pytest tests/`) calculent la
+  couverture avec `pytest-cov`. Les tests d'integration peuvent etre mesures avec
+  `python -m pytest tests/integration --cov=baobab_scryfall_api_caller` si besoin.
+- **Donnees de test** : identifiants et requetes stables documentes dans
+  `tests/integration/scryfall_live_constants.py`.
 
 ## Conformite cahier des charges (V1)
 

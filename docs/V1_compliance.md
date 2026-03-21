@@ -14,7 +14,8 @@ et a l'etat du code a la release **0.1.0** (perimetre fonctionnel V1).
 | Couverture >= 90 % | OK | `pytest-cov` + `fail_under` ; verifie en CI |
 | Typage public, `py.typed` | OK | `pyproject.toml` + marqueur PEP 561 |
 | Exceptions racine projet | OK | `BaobabScryfallApiCallerException` et derivees |
-| Qualite (black, pylint, mypy, flake8, bandit) | OK | Configuration `pyproject.toml` ; CI GitHub Actions sur `main` |
+| Qualite (black, pylint, mypy, flake8, bandit) | OK | Configuration `pyproject.toml` ; execution locale ou pipeline externe |
+| Tests d'integration reseau (optionnels) | OK | `tests/integration`, marqueur `integration`, chaine `baobab-web-api-caller` + `ScryfallApiCaller` |
 
 ## Perimetre fonctionnel (services)
 
@@ -48,7 +49,8 @@ etc.
 
 ## Ecarts et limitations connues
 
-- **Tests d'integration reseau** : non inclus dans ce depot (suite unitaire avec mocks).
+- **Tests d'integration** : disponibles sous `tests/integration` (a la demande, reseau
+  requis) ; la suite par defaut reste **unitaire** pour la couverture et la rapidite.
 - **Telechargement bulk** : non implemente (seules metadonnees + URL).
 - **Wheel `baobab-web-api-caller`** : les tests du depot evitent l'import top-level du
   paquet dependance en CI pour rester robustes ; l'integrateur doit valider la
@@ -56,8 +58,8 @@ etc.
 
 ## Recommandations post-V1
 
-1. Ajouter des tests d'integration optionnels (marqueurs pytest) contre l'API Scryfall
-   ou un mock HTTP de reference.
+1. Etendre ou ajuster les tests d'integration (`tests/integration`) selon l'evolution
+   de l'API Scryfall ou des besoins de non-regression reseau.
 2. Pinner ou documenter les combinaisons `baobab-scryfall-api-caller` /
    `baobab-web-api-caller` validees en production.
 3. Etendre le perimetre endpoints (symbologie, backs, etc.) selon les besoins produit,

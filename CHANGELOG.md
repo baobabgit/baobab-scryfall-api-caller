@@ -7,8 +7,24 @@ et le projet suit le versioning semantique.
 
 ## [Unreleased]
 
+### Added
+
+- **Tests d'integration reseau** : dossier `tests/integration` (marqueur pytest
+  `integration`, fixture `live_scryfall_client` via `baobab-web-api-caller` et
+  `ScryfallApiCaller`), jeux de donnees dans `scryfall_live_constants.py` ;
+  execution : `python -m pytest tests/integration --no-cov`.
+
+### Removed
+
+- **Workflow GitHub Actions** : suppression de `.github/workflows/ci.yml` (plus de CI
+  dans le depot).
+
 ### Changed
 
+- **pytest** : `tests/integration` exclu par defaut (`--ignore`) pour que `pytest` /
+  `pytest tests/` n'executent que les tests unitaires avec couverture ; marker
+  `integration` enregistre dans `pyproject.toml`.
+- **Documentation** : README (section tests d'integration, suppression badge CI).
 - **Stabilisation V1 (release candidate)** : tests supplementaires sur les branches
   d'erreur de `BulkDataMapper` ; validation `SetsService.get_by_code` lorsque le code
   n'est pas une chaine ; `ScryfallRequestValidators.require_uuid_string` lorsque la
